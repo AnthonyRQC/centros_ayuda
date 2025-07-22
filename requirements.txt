@@ -1,11 +1,11 @@
-asgiref==3.8.1
-django==5.2.3
-narwhals==1.43.1
-numpy==2.3.0
-packaging==25.0
-pandas==2.3.0
-python-dateutil==2.9.0.post0
-pytz==2025.2
-six==1.17.0
-sqlparse==0.5.3
-tzdata==2025.2
+asgiref         3.9.1
+django          5.2.4
+gunicorn        23.0.0
+numpy           2.3.1
+packaging       25.0
+pandas          2.3.1
+python-dateutil 2.9.0.post0
+pytz            2025.2
+six             1.17.0
+sqlparse        0.5.3
+tzdata          2025.2
