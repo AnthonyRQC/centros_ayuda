@@ -1,0 +1,45 @@
+/* static/css/components/_map.css */
+
+/* Estilos personalizados para el mapa Leaflet */
+
+.leaflet-control.info.legend {
+  background: var(--color-background-legend) !important;
+  opacity: 1 !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.13) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--border-color-medium) !important;
+}
+
+.leaflet-zoom-control-container {
+  background: white;
+  padding: 8px;
+  border-radius: 5px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+}
+
+.leaflet-zoom-control-container select {
+  width: 180px;
+  height: 30px;
+  border: 1px solid #ccc;
+}
+
+.custom-zoom-container {
+  display: flex;
+  align-items: flex-start;
+}
+
+.custom-reset-button {
+  margin-left: 8px;
+}
+
+/* Estilos para las etiquetas estáticas del mapa (si las usas en el futuro) */
+.static-map-label {
+  background-color: var(--color-map-label-bg) !important; /* Usamos !important por si acaso */
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 4px;
+  padding: 2px 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-weight: bold;
+  color: #333;
+  white-space: nowrap;
+}

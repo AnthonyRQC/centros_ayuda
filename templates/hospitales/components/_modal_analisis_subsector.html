@@ -1,0 +1,47 @@
+<!-- Modal para Análisis: Distritos vs. Subsector -->
+<div class="modal fade" id="modalAnalisisSubsector" tabindex="-1" aria-labelledby="modalSubsectorTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="custom-modal-card">
+                <button type="button" class="custom-close-button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h3 class="dashboard-section-title" id="modalSubsectorTitle"><i class="fa fa-th"></i>Análisis: Distritos vs. Subsectores</h3>
+                        <div id="grafico-analisis-subsector" style="width: 100%; height: 550px;"></div>
+                    </div>
+                    <div class="col-lg-4 stats-column">
+                        <h3 class="dashboard-section-title"><i class="fa fa-info-circle"></i>Datos Destacados</h3>
+                        <div class="stat-card">
+                            <div class="icon"><i class="fa fa-hospital-o"></i></div>
+                            <div class="info">
+                                <div id="stat-subsector-total" class="stat-number">0</div>
+                                <p class="stat-label">Establecimientos Totales</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon"><i class="fa fa-map-o"></i></div>
+                            <div class="info">
+                                <div id="stat-subsector-distritos" class="stat-number">0</div>
+                                <p class="stat-label">Distritos Analizados</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon"><i class="fa fa-trophy"></i></div>
+                            <div class="info">
+                                <div id="stat-subsector-distrito-max" class="stat-number">N/A</div>
+                                <p class="stat-label">Distrito con más centros</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon"><i class="fa fa-star"></i></div>
+                            <div class="info">
+                                <div id="stat-subsector-tipo-comun" class="stat-number">N/A</div>
+                                <p class="stat-label">Subsector más común</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

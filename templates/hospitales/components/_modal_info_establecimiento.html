@@ -1,0 +1,102 @@
+<!-- INICIO DEL COMPONENTE MODAL                      -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="custom-modal-card">
+                <button type="button" class="custom-close-button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+
+                <div class="row">
+                    <div class="col-md-7 main-info-column">
+                        <div class="modal-icon">
+                            <i class="fa fa-hospital-o"></i>
+                        </div>
+                        <!-- ID para el título -->
+                        <h2 class="modal-title-custom" id="modal-nombre"></h2>
+
+                        <!-- ID para la red -->
+                        <p class="modal-secondary-info">
+                            <span id="modal-red"></span>
+                            <i class="fa fa-info-circle info-tooltip-icon" data-toggle="tooltip" data-placement="top"
+                                title="Indica la red de salud a la que pertenece el establecimiento."></i>
+                        </p>
+
+                        <!-- ID para el subsector -->
+                        <p class="modal-subsector-highlight">
+                            <span id="modal-subsector"></span>
+                            <i class="fa fa-info-circle info-tooltip-icon" data-toggle="tooltip" data-placement="top"
+                                title="Define si el centro es público, privado, de seguridad social, etc."></i>
+                        </p>
+
+                        <!-- ID para tipo y nivel -->
+                        <p class="modal-subtitle">
+                            <span id="modal-tipo-nivel"></span>
+                            <i class="fa fa-info-circle info-tooltip-icon" data-toggle="tooltip" data-placement="top"
+                                title="Clasificación del centro según su complejidad y tipo de atención."></i>
+                        </p>
+
+                        <div class="info-section">
+                            <!-- ID para la dirección -->
+                            <div class="info-item">
+                                <i class="fa fa-map-marker"></i>
+                                <span id="modal-direccion"></span>
+                            </div>
+                            <!-- ID para el teléfono fijo -->
+                            <div class="info-item">
+                                <i class="fa fa-phone"></i>
+                                <span id="modal-telefono"></span>
+                            </div>
+                            <!-- ID para WhatsApp -->
+                            <div class="info-item">
+                                <i class="fa fa-whatsapp"></i>
+                                <span id="modal-whatsapp"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5 horarios-column">
+                        <div class="horarios-section mt-4 mt-md-0">
+                            <h3 class="section-title">
+                                <i class="fa fa-clock-o"></i>Horarios de Atención
+                            </h3>
+                            <!-- IDs para los horarios de cada día -->
+                            <div class="horario-row">
+                                <span class="horario-day">Lunes</span>
+                                <span class="horario-time" id="modal-lunes"></span>
+                            </div>
+                            <div class="horario-row">
+                                <span class="horario-day">Martes</span>
+                                <span class="horario-time" id="modal-martes"></span>
+                            </div>
+                            <div class="horario-row">
+                                <span class="horario-day">Miércoles</span>
+                                <span class="horario-time" id="modal-miercoles"></span>
+                            </div>
+                            <div class="horario-row">
+                                <span class="horario-day">Jueves</span>
+                                <span class="horario-time" id="modal-jueves"></span>
+                            </div>
+                            <div class="horario-row">
+                                <span class="horario-day">Viernes</span>
+                                <span class="horario-time" id="modal-viernes"></span>
+                            </div>
+                            <div class="horario-row">
+                                <span class="horario-day">Sábado</span>
+                                <span class="horario-time" id="modal-sabado"></span>
+                            </div>
+                            <div class="horario-row">
+                                <span class="horario-day">Domingo</span>
+                                <span class="horario-time" id="modal-domingo"></span>
+                            </div>
+                        </div>
+                        <!-- Puedes usar este botón en el futuro si lo necesitas -->
+                        <!-- <button type="button" class="btn btn-custom-action">Más Información</button> -->
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FIN DEL COMPONENTE MODAL -->

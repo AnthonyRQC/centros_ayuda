@@ -1,0 +1,740 @@
+#### actual_css.py ####
+
+import os
+
+# Nombre del archivo de salida. No se incluirá a sí mismo en el compilado.
+output_filename = "compilado.txt"
+
+# Extensiones de archivo que se incluirán. Puedes modificar esta lista.
+# Si quieres incluir todos los archivos, deja la lista vacía: included_extensions = []
+included_extensions = ['.js', '.css', '.html', '.py', '.txt']
+
+def compile_files_in_directory(directory, output_file):
+    """
+    Recorre un directorio y sus subdirectorios, leyendo los archivos
+    y escribiendo su contenido en un archivo de salida.
+    """
+    print(f"Escaneando el directorio: {directory}")
+    
+    # os.walk() recorre el árbol de directorios de forma recursiva [[5]] [[7]]
+    for root, dirs, files in os.walk(directory):
+        for filename in files:
+            # Ignorar el propio script de salida
+            if filename == output_filename:
+                continue
+
+            file_path = os.path.join(root, filename)
+            
+            # Obtener la ruta relativa para un encabezado más limpio
+            relative_path = os.path.relpath(file_path, start=directory)
+
+            # Comprobar si el archivo tiene una de las extensiones deseadas
+            # Si la lista de extensiones está vacía, se incluyen todos los archivos.
+            if not included_extensions or any(filename.endswith(ext) for ext in included_extensions):
+                try:
+                    # Escribir el encabezado con la ruta del archivo [[2]]
+                    header = f"#### {relative_path.replace(os.sep, '/')} ####\n\n"
+                    output_file.write(header)
+                    
+                    # Abrir y leer el contenido del archivo [[1]]
+                    with open(file_path, 'r', encoding='utf-8', errors='ignore') as input_file:
+                        content = input_file.read()
+                        output_file.write(content)
+                    
+                    # Añadir un par de saltos de línea para separar los archivos
+                    output_file.write("\n\n")
+                    print(f" - Archivo añadido: {relative_path}")
+
+                except Exception as e:
+                    # Manejar posibles errores, como no poder leer un archivo
+                    error_message = f"**** No se pudo leer el archivo: {relative_path} | Error: {e} ****\n\n"
+                    output_file.write(error_message)
+                    print(f" ! Error al leer {relative_path}: {e}")
+
+
+# Obtener el directorio donde se está ejecutando el script
+current_directory = os.path.dirname(os.path.abspath(__file__))
+
+# Ruta completa del archivo de salida
+output_filepath = os.path.join(current_directory, output_filename)
+
+# Abrir el archivo de salida en modo escritura ('w') [[3]]
+# El modo 'w' crea el archivo si no existe o lo sobrescribe si ya existe.
+try:
+    with open(output_filepath, 'w', encoding='utf-8') as f:
+        print(f"Creando archivo de salida en: {output_filepath}")
+        compile_files_in_directory(current_directory, f)
+    print("\n¡Proceso completado!")
+    print(f"Todos los archivos han sido compilados en '{output_filename}'")
+except IOError as e:
+    print(f"Error al abrir o escribir en el archivo de salida: {e}") [[10]]
+
+
+
+#### base_theme.css ####
+
+/* static/css/base_theme.css */
+/* Este archivo solo importa las variables de color base */
+
+@import "base/_variables.css";
+
+
+#### components.css ####
+
+/* static/css/style.css */
+/*
+  Este es el archivo de estilos principal y único para toda la aplicación.
+  Importa todos los componentes reutilizables y aplica estilos generales
+  usando variables CSS para permitir "theming".
+*/
+
+/* ✅ INICIO DE LA CORRECCIÓN: Importamos los componentes reutilizables */
+@import "components/_map.css";
+@import "components/_dropdowns.css";
+@import "components/_cards.css";
+@import "components/_modals.css";
+@import "components/_legends.css";
+/* ✅ FIN DE LA CORRECCIÓN */
+
+
+/* --- ESTILOS PARA EL SIDEBAR --- */
+.main-sidebar,
+.main-sidebar::before {
+    background-color: var(--color-sidebar-bg) !important;
+}
+.main-sidebar .brand-link {
+    background-color: var(--color-sidebar-bg) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: var(--color-text-light) !important;
+}
+/* ... (y el resto de los estilos del sidebar y navbar que ya tenías) ... */
+.main-sidebar .nav-sidebar .nav-link,
+.main-sidebar .user-panel .info a,
+.main-sidebar .form-inline .input-group .form-control-sidebar {
+    color: var(--color-text-light) !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+.main-sidebar .nav-sidebar .nav-link .nav-icon {
+    color: var(--color-text-light) !important;
+}
+.main-sidebar .nav-sidebar .nav-item .nav-link.active,
+.main-sidebar .nav-sidebar .nav-item .nav-link:hover,
+.main-sidebar .nav-sidebar .nav-item.menu-open > .nav-link {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--color-text-light) !important;
+}
+
+/* --- ESTILOS PARA EL NAVBAR --- */
+.main-header.navbar {
+    background-color: var(--color-navbar-bg) !important;
+    transition: background-color 0.3s ease;
+}
+.main-header.navbar .nav-link,
+.main-header.navbar .nav-item > .nav-link {
+    color: var(--color-text-light) !important;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+.main-header.navbar .nav-link .fas {
+    color: var(--color-text-light) !important;
+}
+.main-header.navbar .nav-item .nav-link:hover {
+    background-color: var(--color-navbar-hover) !important;
+    color: var(--color-text-light) !important;
+}
+
+/* --- ESTILOS DE LAYOUT Y LOGO (No usan variables de tema) --- */
+/* ... (Aquí va el resto de tu código para el logo y el layout) ... */
+.main-sidebar .brand-image-no-border {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    float: none !important;
+}
+.main-sidebar .brand-image-xs {
+    display: none;
+}
+.main-sidebar .brand-image-xl {
+    display: block;
+}
+body.sidebar-collapse .main-sidebar .brand-image-xl {
+    display: none;
+}
+body.sidebar-collapse .main-sidebar .brand-image-xs {
+    display: block;
+    width: auto;
+    max-height: 33px;
+    margin-left: .5rem;
+}
+body.sidebar-collapse .main-sidebar .brand-link {
+    width: var(--sidebar-mini-width, 4.6rem);
+    text-align: center;
+    padding: .8125rem 0.5rem;
+}
+.main-sidebar .brand-link {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: .8125rem 0;
+}
+.main-sidebar .brand-link .brand-image-xl {
+    display: block;
+    max-width: 90%;
+    height: auto;
+    margin: 0 auto;
+}
+.content-wrapper {
+  margin-top: 0 !important;
+  padding-top: 0.5rem !important;
+}
+.content-header {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.content-header .row.mb-2 {
+  margin-bottom: 0 !important;
+}
+.content {
+  padding-top: 0 !important;
+}
+
+
+#### base/_variables.css ####
+
+/* static/css/base/_variables.css */
+/* Este archivo define el tema de color por defecto (Centros de Salud) */
+
+:root {
+  /* Colores del Layout */
+  --color-sidebar-bg: #2C5364;
+  --color-navbar-bg: #44687A;
+  --color-navbar-hover: #698795;
+  --color-text-light: #f8f9fa;
+
+  /* Colores de Texto */
+  --color-text-light: #f8f9fa;
+  --color-text-primary: #333;
+  --color-text-secondary: #777;
+  --color-text-label: #555;
+
+  /* Colores de Acento y Estado (para botones de info/danger) */
+  --color-accent-info: #17a2b8;
+  --color-accent-danger: #dc3545;
+  --color-accent-hover: #138496;
+  
+  /* ✅ NUEVO: Colores específicos para los Dropdowns */
+  --color-dropdown-bg: #578fca; /* El celeste oscuro original del botón */
+  --color-dropdown-bg-hover: #4a7fb9;
+  --color-dropdown-menu-hover: #eaf2fa; /* Un azul muy claro para el hover de las opciones */
+  --color-dropdown-menu-selected: #d4e4f5; /* Un azul un poco más oscuro para las opciones seleccionadas */
+  
+  /* Colores de Componentes Específicos */
+  --color-background-legend: #fff8e1;
+  --color-background-card: #ffffff;
+  --color-background-card-hover-shadow: rgba(0, 0, 0, 0.08);
+  --color-background-modal: #f0f8ff; /* AliceBlue - el celeste suave para el fondo del modal */
+  --color-background-modal-shadow: rgba(0, 0, 0, 0.1);
+   /* ✅ NUEVO: Color de fondo para las etiquetas estáticas del mapa */
+  --color-map-label-bg: #fefdeb; /* Un crema muy claro */
+  
+  /* Bordes y Radios */
+  --border-radius-card: 15px;
+  --border-radius-modal: 20px;
+  --border-color-light: #f0f0f0;
+  --border-color-medium: #e3e3e3;
+}
+
+
+#### components/_cards.css ####
+
+/* Estilos para las Tarjetas de Estadísticas */
+.stat-card {
+    background-color: var(--color-background-card);
+    border-radius: var(--border-radius-card);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 12px var(--color-background-card-hover-shadow);
+    transition: transform 0.2s ease-in-out;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card .icon {
+    font-size: 28px;
+    color: var(--color-primary);
+    margin-right: 20px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eaf2fa; /* Podríamos crear una variable --color-primary-light para esto */
+    border-radius: 50%;
+}
+
+.stat-card .info .stat-number {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.2;
+}
+
+.stat-card .info .stat-label {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+
+#### components/_dropdowns.css ####
+
+/* static/css/components/_dropdowns.css */
+/* Estilos detallados para el plugin Bootstrap Select */
+
+/* Contenedor principal del dropdown */
+.bootstrap-select {
+  /* Asegura que los dropdowns aparezcan por encima de los controles del mapa */
+  z-index: 1001 !important;
+}
+
+/* El botón principal del dropdown */
+.bootstrap-select > .btn.dropdown-toggle {
+  background-color: var(--color-dropdown-bg) !important;
+  color: var(--color-text-light) !important;
+  border: none !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.bootstrap-select > .btn.dropdown-toggle:hover {
+  background-color: var(--color-dropdown-bg-hover) !important;
+}
+
+/* El menú desplegable */
+.bootstrap-select .dropdown-menu {
+  border-radius: 8px;
+  border: 1px solid #e3e3e3;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover sobre una opción */
+.bootstrap-select .dropdown-item:hover,
+.bootstrap-select .dropdown-item:focus {
+  background-color: var(--color-dropdown-menu-hover);
+  color: #333;
+}
+
+/* Opción que está seleccionada */
+.bootstrap-select .dropdown-item.selected,
+.bootstrap-select .dropdown-item.selected.active {
+  background-color: var(--color-dropdown-menu-selected);
+  color: #333;
+  font-weight: 600;
+}
+
+/* El checkmark de la opción seleccionada */
+.bootstrap-select .dropdown-item.selected .check-mark {
+  color: var(--color-dropdown-bg);
+}
+
+/* Botones de Info y Danger al lado del dropdown */
+.btn-group .btn-info {
+  background-color: var(--color-accent-info);
+  border-color: var(--color-accent-info);
+}
+.btn-group .btn-danger {
+  background-color: var(--color-accent-danger);
+  border-color: var(--color-accent-danger);
+}
+
+
+#### components/_legends.css ####
+
+/* Estilos para la Leyenda del Gráfico de Burbujas */
+.legend-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 15px;
+  gap: 20px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+
+#### components/_map.css ####
+
+/* Estilos personalizados para el mapa Leaflet */
+.leaflet-control {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+.leaflet-control .legend,
+.leaflet-control .info.legend {
+  background: var(--color-background-legend) !important;
+  opacity: 1 !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.13) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--border-color-medium) !important;
+}
+
+.leaflet-zoom-control-container {
+  background: white;
+  padding: 8px;
+  border-radius: 5px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+}
+
+.leaflet-zoom-control-container select {
+  width: 180px;
+  height: 30px;
+  border: 1px solid #ccc;
+}
+
+.custom-zoom-container {
+  display: flex;
+  align-items: flex-start;
+}
+
+.custom-reset-button {
+  margin-left: 8px;
+}
+
+/* ✅ NUEVO: Estilos para las etiquetas estáticas del mapa */
+.static-map-label {
+  background-color: var(--color-map-label-bg);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 4px;
+  padding: 2px 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-weight: bold;
+  color: #333;
+  white-space: nowrap;
+}
+
+#### components/_modals.css ####
+
+/* ==========================================================================
+   ESTILOS PARA MODALES
+   Contiene todos los estilos para los pop-ups de la aplicación,
+   incluyendo el modal de información del establecimiento y los
+   modales de análisis cruzado.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Estilos Generales y Contenedor Principal del Modal
+   -------------------------------------------------------------------------- */
+
+/* Reseteo del contenedor de Bootstrap para tener control total sobre el diseño */
+.modal-content {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  /* Permite hacer clic "a través" del fondo del modal, en el mapa */
+  pointer-events: none;
+}
+
+/* La "tarjeta" personalizada que contiene el contenido del modal */
+.custom-modal-card {
+  background-color: var(--color-background-modal);
+  border-radius: var(--border-radius-modal);
+  margin: auto;
+  padding: 30px 40px; /* Padding generoso para los modales grandes */
+  box-shadow: 0 10px 30px var(--color-background-modal-shadow);
+  position: relative;
+  /* Devuelve la capacidad de interactuar con la tarjeta */
+  pointer-events: auto;
+}
+
+/* Botón de cierre universal para todos los modales */
+.custom-close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  color: var(--color-text-secondary);
+  font-size: 28px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 1051; /* Z-index alto para estar sobre cualquier contenido del modal */
+}
+
+.custom-close-button:hover {
+  color: var(--color-text-primary);
+  background-color: var(--border-color-light);
+}
+
+
+/* --------------------------------------------------------------------------
+   2. Estilos Específicos para el Modal de Información del Establecimiento
+   -------------------------------------------------------------------------- */
+
+.main-info-column {
+  text-align: center;
+}
+
+.modal-icon {
+  font-size: 75px;
+  color: var(--color-accent);
+  margin-bottom: 20px;
+}
+
+.modal-title-custom {
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.modal-secondary-info,
+.modal-subsector-highlight,
+.modal-subtitle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-secondary-info {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-label);
+  margin-bottom: 4px;
+}
+
+.modal-subsector-highlight {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: 8px;
+}
+
+.modal-subtitle {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  margin-bottom: 25px;
+}
+
+.info-tooltip-icon {
+  color: var(--border-color-medium);
+  font-size: 16px;
+  margin-left: 8px;
+  cursor: help;
+  transition: color 0.2s ease-in-out;
+}
+
+.info-tooltip-icon:hover {
+  color: var(--color-accent-hover);
+}
+
+.info-section {
+  text-align: left;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-label);
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.info-item i {
+  color: var(--color-accent);
+  font-size: 18px;
+  width: 25px;
+  text-align: center;
+  margin-right: 8px;
+}
+
+/* Columna de horarios */
+.horarios-column {
+  border-left: 1px solid var(--border-color-light);
+  padding-left: 25px;
+}
+
+.horarios-section {
+  text-align: left;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 15px;
+}
+
+.section-title i {
+  color: var(--color-accent);
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+.horario-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 5px;
+  border-bottom: 1px solid var(--border-color-light);
+  font-size: 14px;
+}
+
+.horario-row:last-child {
+  border-bottom: none;
+}
+
+.horario-day {
+  font-weight: 500;
+  color: var(--color-text-label);
+}
+
+.horario-time {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.horario-time.closed {
+  color: var(--color-status-closed);
+}
+
+.horario-time.open-24h {
+  color: var(--color-status-open-24h);
+  font-weight: 600;
+}
+
+
+/* --------------------------------------------------------------------------
+   3. Estilos Específicos para los Modales de Análisis Cruzado
+   -------------------------------------------------------------------------- */
+
+.custom-modal-card {
+    min-height: 550px; /* Altura mínima para los modales de análisis */
+}
+
+.dashboard-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 20px;
+}
+
+.dashboard-section-title i {
+    margin-right: 10px;
+    color: var(--color-primary); /* Usa el color primario para los íconos de título */
+}
+
+.stats-column {
+    border-left: 1px solid var(--border-color-light);
+    padding-left: 30px;
+}
+
+/* Tarjetas de estadísticas DENTRO del modal de análisis */
+.stats-column .stat-card {
+    background-color: #f8f9fa; /* Un gris muy claro para diferenciar */
+    border-radius: var(--border-radius-card);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    box-shadow: none; /* Sin sombra para un look más plano dentro del modal */
+}
+
+.stats-column .stat-card .icon {
+    font-size: 28px;
+    color: var(--color-primary);
+    margin-right: 20px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eaf2fa; /* Un azul muy claro, derivado del primario */
+    border-radius: 50%;
+}
+
+.stats-column .stat-card .info .stat-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.stats-column .stat-card .info .stat-label {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+
+/* --------------------------------------------------------------------------
+   4. Media Queries para Responsividad
+   -------------------------------------------------------------------------- */
+
+/* Para pantallas medianas y pequeñas, quitar el borde lateral y ajustar márgenes */
+@media (max-width: 991.98px) {
+    .stats-column {
+        border-left: none;
+        padding-left: 15px;
+        margin-top: 30px;
+    }
+}
+
+/* Para pantallas pequeñas, quitar el borde lateral de la columna de horarios */
+@media (max-width: 767.98px) {
+  .horarios-column {
+    border-left: none;
+    padding-left: 0;
+    margin-top: 20px;
+  }
+}
+
+
+#### educacion/dashboard_educacion.css ####
+
+
+
+#### educacion/theme.css ####
+
+/* static/css/educacion/theme.css */
+/* Tema de color para el dashboard de educación. */
+
+body.theme-educacion {
+  /* Colores del Layout */
+  --color-sidebar-bg: #2F4F4F;
+  --color-navbar-bg: #4682B4;
+  --color-navbar-hover: #5a94c8;
+
+  /* Colores de Acento y Estado */
+  --color-accent-info: #3CB371;
+  --color-accent-danger: #CD5C5C;
+
+  /* ✅ NUEVO: Colores de Dropdown para el tema de Educación */
+  --color-dropdown-bg: #5F9EA0; /* CadetBlue */
+  --color-dropdown-bg-hover: #538c8e; /* Un tono más oscuro de CadetBlue */
+  --color-dropdown-menu-hover: #f0f8ff; /* AliceBlue */
+  --color-dropdown-menu-selected: #e0eef7; /* Un tono más oscuro de AliceBlue */
+
+  /* Colores de Componentes Específicos */
+  --color-background-legend: #f0f8ff;
+  --color-background-modal: #f0fff0; /* Honeydew - un fondo verdoso muy suave */
+  /* ✅ NUEVO: Color de fondo para las etiquetas del mapa en el tema de educación */
+  --color-map-label-bg: #f0fff0; /* Honeydew */
+}
+
+

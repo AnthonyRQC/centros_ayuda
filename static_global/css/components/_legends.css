@@ -1,0 +1,18 @@
+/* Estilos para la Leyenda del Gráfico de Burbujas */
+.legend-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 15px;
+  gap: 20px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}

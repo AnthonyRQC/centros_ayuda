@@ -1,0 +1,167 @@
+{% load static %}
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar elevation-4">
+  <!-- Brand Logo -->
+  <a href="" class="brand-link">
+    <!-- Logo grande/completo - visible siempre -->
+    <img
+      src="{% static 'img/Logo-gamea.png' %}"
+      alt="Logo Grande"
+      class="brand-image-xl brand-image-no-border"
+      style="width: 100%; height: auto;"
+    >
+  </a>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    
+    <!-- Sidebar Menu -->
+    <nav class="mt-2">
+      <ul
+        class="nav nav-pills nav-sidebar flex-column"
+        data-widget="treeview"
+        role="menu"
+        data-accordion="false"
+      >
+        <!-- Add icons to the links using the .nav-icon class
+               with font-awesome or any other icon font library -->
+        
+        <li class="nav-item">
+          <a href="{% url 'general:dashboard' %}" class="nav-link">
+            <i class="nav-icon fas fa-th"></i>
+            <p>
+              General
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'hospitales:dashboard' %}" class="nav-link">
+            <i class="nav-icon fas fa-th"></i>
+            <p>
+              Hospitales
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-th"></i>
+            <p>
+              Colegios
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-th"></i>
+            <p>
+              mapa prueba
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-chart-pie"></i>
+            <p>
+              Graficos
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+               <a href="#" class="nav-link">
+                <i class="fas fa-school nav-icon"></i>
+                <p>Unidades Educativas</p>
+              </a>
+            </li>
+            <li class="nav-item">
+               <a href="{% url 'hospitales:dashboard' %}" class="nav-link {% if active_menu == 'hospitales' %}active{% endif %}">
+                <i class="fas fa-hospital nav-icon"></i>
+                <p>Hospitales</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'iglesias:dashboard' %}" class="nav-link {% if active_menu == 'iglesias' %}active{% endif %}">
+                <i class="nav-icon fas fa-church"></i>
+                <p>Iglesias y Centros de Ayuda</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="" class="">
+                <i class="fas fa-futbol nav-icon"></i>
+                <p>Canchas</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-edit"></i>
+            <p>
+              Formularios
+              <i class="fas fa-angle-left right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="../forms/general.html" class="nav-link">
+                <i class="nav-icon far fa-circle"></i>
+                <p>Nuevo Centro</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-table"></i>
+            <p>
+              Tablas
+              <i class="fas fa-angle-left right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="../tables/jsgrid.html" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Tabla de Centros</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon far fa-circle text-warning"></i>
+            <p>Warning</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon far fa-circle text-info"></i>
+            <p>Informational</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-table text-info"></i>
+            <p>Table</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-table text-info"></i>
+            <p>Table</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-table text-info"></i>
+            <p>Table</p>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <!-- /.sidebar-menu -->
+  </div>
+  <!-- /.sidebar -->
+</aside>

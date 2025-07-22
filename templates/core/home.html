@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inicio{% endblock %} {# Título que aparecerá en la pestaña del navegador #}
+
+{% block page_title %}{{ dashboard_title }}{% endblock %} {# Título grande en el contenido de AdminLTE #}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Inicio</a></li>
+        <li class="breadcrumb-item active">Panel Principal</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Bienvenido a tu Aplicación de Dashboards</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Este es el panel principal. Utiliza el menú de navegación lateral para explorar los diferentes dashboards de instituciones.
+                    </p>
+                    <p>
+                        Actualmente, puedes visitar:
+                        <ul>
+                            <li><a href="#">Dashboard de Colegios</a></li>
+                            <li><a href="{% url 'iglesias:dashboard' %}">Dashboard de Iglesias</a></li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

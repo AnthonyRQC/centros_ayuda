@@ -1,0 +1,41 @@
+/* Estilos para las Tarjetas de Estadísticas */
+.stat-card {
+    background-color: var(--color-background-card);
+    border-radius: var(--border-radius-card);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 12px var(--color-background-card-hover-shadow);
+    transition: transform 0.2s ease-in-out;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card .icon {
+    font-size: 28px;
+    color: var(--color-primary);
+    margin-right: 20px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eaf2fa; /* Podríamos crear una variable --color-primary-light para esto */
+    border-radius: 50%;
+}
+
+.stat-card .info .stat-number {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.2;
+}
+
+.stat-card .info .stat-label {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin: 0;
+}

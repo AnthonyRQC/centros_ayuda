@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard General{% endblock %}
+
+{% block page_title %}{{ dashboard_title }}{% endblock %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Inicio</a></li>
+        <li class="breadcrumb-item active">Informacion General</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-6 col-md-12">
+            <div class="card card-primary card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">Gráfico de Pacientes por Hospital</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {# Aquí se inyecta el gráfico de Plotly para pacientes #}
+
+                    // {{ plot_pacientes|safe }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-md-12">
+            <div class="card card-info card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">Gráfico de Camas Disponibles por Tipo</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {# Aquí se inyecta el gráfico de Plotly para camas #}
+ 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-secondary card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">Datos Detallados de Hospitales</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {# Aquí se inyecta la tabla de datos #}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{# No necesitamos extra_js o extra_head en este ejemplo porque Plotly se carga en base.html #}
+{# y el JS para los gráficos está contenido en el div HTML generado por Plotly. #}

@@ -1,0 +1,57 @@
+/* static/css/components/_dropdowns.css */
+/* Estilos detallados para el plugin Bootstrap Select */
+
+/* Contenedor principal del dropdown */
+.bootstrap-select {
+  /* Asegura que los dropdowns aparezcan por encima de los controles del mapa */
+  z-index: 1001 !important;
+}
+
+/* El botón principal del dropdown */
+.bootstrap-select > .btn.dropdown-toggle {
+  background-color: var(--color-dropdown-bg) !important;
+  color: var(--color-text-light) !important;
+  border: none !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.bootstrap-select > .btn.dropdown-toggle:hover {
+  background-color: var(--color-dropdown-bg-hover) !important;
+}
+
+/* El menú desplegable */
+.bootstrap-select .dropdown-menu {
+  border-radius: 8px;
+  border: 1px solid #e3e3e3;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover sobre una opción */
+.bootstrap-select .dropdown-item:hover,
+.bootstrap-select .dropdown-item:focus {
+  background-color: var(--color-dropdown-menu-hover);
+  color: #333;
+}
+
+/* Opción que está seleccionada */
+.bootstrap-select .dropdown-item.selected,
+.bootstrap-select .dropdown-item.selected.active {
+  background-color: var(--color-dropdown-menu-selected);
+  color: #333;
+  font-weight: 600;
+}
+
+/* El checkmark de la opción seleccionada */
+.bootstrap-select .dropdown-item.selected .check-mark {
+  color: var(--color-dropdown-bg);
+}
+
+/* Botones de Info y Danger al lado del dropdown */
+.btn-group .btn-info {
+  background-color: var(--color-accent-info);
+  border-color: var(--color-accent-info);
+}
+.btn-group .btn-danger {
+  background-color: var(--color-accent-danger);
+  border-color: var(--color-accent-danger);
+}

@@ -1,0 +1,107 @@
+/* ✅ INICIO DE LA CORRECCIÓN: Importamos los componentes reutilizables */
+@import "components/_map.css";
+@import "components/_dropdowns.css";
+@import "components/_cards.css";
+@import "components/_modals.css";
+@import "components/_legends.css";
+/* ✅ FIN DE LA CORRECCIÓN */
+
+
+/* --- ESTILOS PARA EL SIDEBAR --- */
+.main-sidebar,
+.main-sidebar::before {
+    background-color: var(--color-sidebar-bg) !important;
+}
+.main-sidebar .brand-link {
+    background-color: var(--color-sidebar-bg) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: var(--color-text-light) !important;
+}
+/* ... (y el resto de los estilos del sidebar y navbar que ya tenías) ... */
+.main-sidebar .nav-sidebar .nav-link,
+.main-sidebar .user-panel .info a,
+.main-sidebar .form-inline .input-group .form-control-sidebar {
+    color: var(--color-text-light) !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+.main-sidebar .nav-sidebar .nav-link .nav-icon {
+    color: var(--color-text-light) !important;
+}
+.main-sidebar .nav-sidebar .nav-item .nav-link.active,
+.main-sidebar .nav-sidebar .nav-item .nav-link:hover,
+.main-sidebar .nav-sidebar .nav-item.menu-open > .nav-link {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--color-text-light) !important;
+}
+
+/* --- ESTILOS PARA EL NAVBAR --- */
+.main-header.navbar {
+    background-color: var(--color-navbar-bg) !important;
+    transition: background-color 0.3s ease;
+}
+.main-header.navbar .nav-link,
+.main-header.navbar .nav-item > .nav-link {
+    color: var(--color-text-light) !important;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+.main-header.navbar .nav-link .fas {
+    color: var(--color-text-light) !important;
+}
+.main-header.navbar .nav-item .nav-link:hover {
+    background-color: var(--color-navbar-hover) !important;
+    color: var(--color-text-light) !important;
+}
+
+/* --- ESTILOS DE LAYOUT Y LOGO (No usan variables de tema) --- */
+/* ... (Aquí va el resto de tu código para el logo y el layout) ... */
+.main-sidebar .brand-image-no-border {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    float: none !important;
+}
+.main-sidebar .brand-image-xs {
+    display: none;
+}
+.main-sidebar .brand-image-xl {
+    display: block;
+}
+body.sidebar-collapse .main-sidebar .brand-image-xl {
+    display: none;
+}
+body.sidebar-collapse .main-sidebar .brand-image-xs {
+    display: block;
+    width: auto;
+    max-height: 33px;
+    margin-left: .5rem;
+}
+body.sidebar-collapse .main-sidebar .brand-link {
+    width: var(--sidebar-mini-width, 4.6rem);
+    text-align: center;
+    padding: .8125rem 0.5rem;
+}
+.main-sidebar .brand-link {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: .8125rem 0;
+}
+.main-sidebar .brand-link .brand-image-xl {
+    display: block;
+    max-width: 90%;
+    height: auto;
+    margin: 0 auto;
+}
+.content-wrapper {
+  margin-top: 0 !important;
+  padding-top: 0.5rem !important;
+}
+.content-header {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.content-header .row.mb-2 {
+  margin-bottom: 0 !important;
+}
+.content {
+  padding-top: 0 !important;
+}

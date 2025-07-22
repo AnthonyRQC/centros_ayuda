@@ -1,0 +1,842 @@
+#### directorios_Atxt.py ####
+
+import os
+
+# Nombre del archivo de salida. No se incluirá a sí mismo en el compilado.
+output_filename = "compilado.txt"
+
+# Extensiones de archivo que se incluirán. Puedes modificar esta lista.
+# Si quieres incluir todos los archivos, deja la lista vacía: included_extensions = []
+included_extensions = ['.js', '.css', '.html', '.py', '.txt']
+
+def compile_files_in_directory(directory, output_file):
+    """
+    Recorre un directorio y sus subdirectorios, leyendo los archivos
+    y escribiendo su contenido en un archivo de salida.
+    """
+    print(f"Escaneando el directorio: {directory}")
+    
+    # os.walk() recorre el árbol de directorios de forma recursiva [[5]] [[7]]
+    for root, dirs, files in os.walk(directory):
+        for filename in files:
+            # Ignorar el propio script de salida
+            if filename == output_filename:
+                continue
+
+            file_path = os.path.join(root, filename)
+            
+            # Obtener la ruta relativa para un encabezado más limpio
+            relative_path = os.path.relpath(file_path, start=directory)
+
+            # Comprobar si el archivo tiene una de las extensiones deseadas
+            # Si la lista de extensiones está vacía, se incluyen todos los archivos.
+            if not included_extensions or any(filename.endswith(ext) for ext in included_extensions):
+                try:
+                    # Escribir el encabezado con la ruta del archivo [[2]]
+                    header = f"#### {relative_path.replace(os.sep, '/')} ####\n\n"
+                    output_file.write(header)
+                    
+                    # Abrir y leer el contenido del archivo [[1]]
+                    with open(file_path, 'r', encoding='utf-8', errors='ignore') as input_file:
+                        content = input_file.read()
+                        output_file.write(content)
+                    
+                    # Añadir un par de saltos de línea para separar los archivos
+                    output_file.write("\n\n")
+                    print(f" - Archivo añadido: {relative_path}")
+
+                except Exception as e:
+                    # Manejar posibles errores, como no poder leer un archivo
+                    error_message = f"**** No se pudo leer el archivo: {relative_path} | Error: {e} ****\n\n"
+                    output_file.write(error_message)
+                    print(f" ! Error al leer {relative_path}: {e}")
+
+
+# Obtener el directorio donde se está ejecutando el script
+current_directory = os.path.dirname(os.path.abspath(__file__))
+
+# Ruta completa del archivo de salida
+output_filepath = os.path.join(current_directory, output_filename)
+
+# Abrir el archivo de salida en modo escritura ('w') [[3]]
+# El modo 'w' crea el archivo si no existe o lo sobrescribe si ya existe.
+try:
+    with open(output_filepath, 'w', encoding='utf-8') as f:
+        print(f"Creando archivo de salida en: {output_filepath}")
+        compile_files_in_directory(current_directory, f)
+    print("\n¡Proceso completado!")
+    print(f"Todos los archivos han sido compilados en '{output_filename}'")
+except IOError as e:
+    print(f"Error al abrir o escribir en el archivo de salida: {e}") [[10]]
+
+
+
+#### common_modules/charts.js ####
+
+// static/js/common_modules/charts.js
+// Módulo REUTILIZABLE para la creación y gestión de todos los gráficos con ECharts.
+
+// Variables para mantener las instancias de los gráficos
+let chartDistritos, chartBurbujasNivel, chartSubsector, chartComparativa;
+let heatmapNivel, heatmapSubsector;
+
+/**
+ * Inicializa todas las instancias de los gráficos principales del dashboard
+ * y configura los listeners para redimensionarlos correctamente.
+ */
+export function initCharts() {
+    // Inicializa los gráficos de las pestañas
+    chartDistritos = echarts.init(document.getElementById('grafico-distritos'));
+    chartBurbujasNivel = echarts.init(document.getElementById('grafico-burbujas-nivel'));
+    chartSubsector = echarts.init(document.getElementById('grafico-subsector'));
+    chartComparativa = echarts.init(document.getElementById('grafico-comparativa'));
+
+    // Listener para redimensionar los gráficos cuando se cambia de pestaña
+    $('a[data-toggle="tab"]').on('shown.bs.tab', e => {
+        const targetId = e.target.id;
+        if (targetId === 'distrito-tab' && chartDistritos) chartDistritos.resize();
+        if (targetId === 'nivel-tab' && chartBurbujasNivel) chartBurbujasNivel.resize();
+        if (targetId === 'subsector-tab' && chartSubsector) chartSubsector.resize();
+        if (targetId === 'comp-tab' && chartComparativa) chartComparativa.resize();
+    });
+
+    // Listener para redimensionar los gráficos de los modales al cambiar el tamaño de la ventana
+    $(window).on('resize', () => {
+        if (heatmapNivel) heatmapNivel.resize();
+        if (heatmapSubsector) heatmapSubsector.resize();
+    });
+}
+
+/**
+ * Función principal que actualiza todos los gráficos del dashboard
+ * basándose en los filtros proporcionados.
+ * @param {object} filtros - Objeto con los filtros seleccionados.
+ */
+export function actualizarGraficos(filtros) {
+    actualizarGraficoDistritos(filtros);
+    actualizarGraficoBurbujasNivel(filtros);
+    actualizarGraficoSubsector(filtros);
+    actualizarGraficoComparativa(filtros);
+}
+
+// --- FUNCIONES DE ACTUALIZACIÓN DE GRÁFICOS INDIVIDUALES ---
+
+function actualizarGraficoDistritos(filtros) {
+    $.ajax({
+        url: window.dashboardConfig.apiUrls.graficoDistritos,
+        data: filtros,
+        dataType: 'json',
+        success: response => {
+            // ✅ CAMBIO: Lee la configuración del gráfico desde el objeto global
+            const settings = window.dashboardConfig.chartSettings.distritos;
+            const option = {
+                // ✅ CAMBIO: Usa el título desde la configuración
+                title: { text: settings.title, left: 'center' },
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                xAxis: { type: 'category', data: response.labels, axisLabel: { rotate: 45, interval: 0 } },
+                yAxis: { type: 'value' },
+                series: [{
+                    name: 'Nº de Centros',
+                    data: response.data,
+                    type: 'bar',
+                    itemStyle: { color: '#87CEEB' },
+                    label: { show: true, position: 'top', color: '#464646', fontWeight: 'bold', fontSize: 12 }
+                }],
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true }
+            };
+            chartDistritos.setOption(option);
+        }
+    });
+}
+
+function actualizarGraficoBurbujasNivel(filtros) {
+    $.ajax({
+        url: window.dashboardConfig.apiUrls.graficoNivel,
+        data: filtros,
+        dataType: 'json',
+        success: response => {
+            if (response.length === 0) {
+                chartBurbujasNivel.clear();
+                crearLeyendaNivel([]);
+                return;
+            }
+
+            const packedData = prepararDatosBurbujas(response);
+            crearLeyendaNivel(response);
+
+            // ✅ CAMBIO: Lee la configuración del gráfico desde el objeto global
+            const settings = window.dashboardConfig.chartSettings.nivel;
+            const option = {
+                // ✅ CAMBIO: Usa el título desde la configuración
+                title: { text: settings.title, left: 'center' },
+                tooltip: { formatter: p => `${p.data[3]}<br><b>Total: ${p.data[5]}</b>` },
+                xAxis: { show: false, type: 'value', min: 0, max: 400 },
+                yAxis: { show: false, type: 'value', min: 0, max: 400 },
+                series: [{
+                    type: 'scatter',
+                    symbol: 'circle',
+                    symbolSize: val => val[2] * 2,
+                    data: packedData.map(d => [d.x, d.y, d.r, d.id, d.categoria, d.value]),
+                    label: {
+                        show: true,
+                        formatter: p => {
+                            const value = p.data[5];
+                            const radius = p.data[2];
+                            return radius > 25 ? `${p.data[3]}\n${value}` : `${value}`;
+                        },
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        fontSize: p => Math.max(Math.min(p.data[2] / 2.5, 16), 10),
+                        textShadowColor: 'rgba(0, 0, 0, 0.6)',
+                        textShadowBlur: 3
+                    },
+                    // ✅ CAMBIO: Usa la nueva función genérica para obtener el color
+                    itemStyle: { color: p => getColor(p.data[4], 'nivel') }
+                }],
+                animationDuration: 1000,
+                animationEasing: 'elasticOut'
+            };
+            chartBurbujasNivel.setOption(option, true);
+        }
+    });
+}
+
+function actualizarGraficoSubsector(filtros) {
+    $.ajax({
+        url: window.dashboardConfig.apiUrls.graficoSubsector,
+        data: filtros,
+        dataType: 'json',
+        success: response => {
+            const coloresPieMixtos = [
+                { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: '#83bff6' }, { offset: 1, color: '#188df0' }] },
+                { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: '#48D1CC' }, { offset: 1, color: '#008B8B' }] },
+                { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: '#F87272' }, { offset: 1, color: '#D62929' }] },
+                { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: '#A9CCE3' }, { offset: 1, color: '#5D8AA8' }] }
+            ];
+            // ✅ CAMBIO: Lee la configuración del gráfico desde el objeto global
+            const settings = window.dashboardConfig.chartSettings.subsector;
+            const option = {
+                color: coloresPieMixtos,
+                // ✅ CAMBIO: Usa el título desde la configuración
+                title: { text: settings.title, left: 'center' },
+                tooltip: { trigger: 'item', formatter: '{a} <br/>{b}: {c} ({d}%)' },
+                legend: { orient: 'vertical', left: 'left', top: 'bottom' },
+                series: [{
+                    name: 'Subsector',
+                    type: 'pie',
+                    radius: '60%',
+                    center: ['50%', '50%'],
+                    data: response,
+                    emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' } },
+                    label: { show: true, formatter: '{b}\n{c} ({d}%)' },
+                    labelLine: { show: true }
+                }]
+            };
+            chartSubsector.setOption(option);
+        }
+    });
+}
+
+function actualizarGraficoComparativa(filtros) {
+    $.ajax({
+        url: window.dashboardConfig.apiUrls.graficoComparativa,
+        data: filtros,
+        dataType: 'json',
+        success: response => {
+            const colores = ['#5B9BD5', '#5DADE2', '#48C9B0', '#4682B4'];
+            response.series.forEach((serie, index) => {
+                serie.itemStyle = { color: colores[index % colores.length] };
+                serie.label = { show: true, position: 'top', fontWeight: 'bold', color: '#464646', fontSize: 11 };
+            });
+
+            // ✅ CAMBIO: Lee la configuración del gráfico desde el objeto global
+            const settings = window.dashboardConfig.chartSettings.comparativa;
+            const option = {
+                // ✅ CAMBIO: Usa el título desde la configuración
+                title: { text: settings.title, left: 'center' },
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                legend: { top: 'bottom' },
+                grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+                xAxis: [{ type: 'category', data: response.categories }],
+                yAxis: [{ type: 'value' }],
+                series: response.series
+            };
+            chartComparativa.setOption(option);
+        }
+    });
+}
+
+// --- FUNCIONES AUXILIARES ---
+
+/**
+ * ✅ NUEVA FUNCIÓN GENÉRICA: Obtiene un color desde la configuración.
+ * Busca el color para un valor específico dentro de un mapeo de colores de un gráfico.
+ * @param {string} valor - El valor a buscar (ej. '1ER NIVEL').
+ * @param {string} chartName - El nombre de la configuración del gráfico (ej. 'nivel').
+ * @returns {string} El código de color correspondiente o un color por defecto.
+ */
+function getColor(valor, chartName) {
+    const mappings = window.dashboardConfig.chartSettings[chartName].colorMappings;
+    return mappings[valor] || mappings['default'];
+}
+
+function crearLeyendaNivel(datos) {
+    const legendContainer = document.getElementById('leyenda-burbujas-nivel');
+    legendContainer.innerHTML = '';
+    const categoriasUnicas = [...new Set(datos.map(d => d.categoria))];
+
+    categoriasUnicas.forEach(categoria => {
+        const legendItem = document.createElement('div');
+        legendItem.className = 'legend-item';
+        const colorBox = document.createElement('div');
+        colorBox.className = 'legend-color';
+        // ✅ CAMBIO: Usa la nueva función genérica para obtener el color
+        colorBox.style.backgroundColor = getColor(categoria, 'nivel');
+        const label = document.createElement('span');
+        label.textContent = categoria;
+        legendItem.appendChild(colorBox);
+        legendItem.appendChild(label);
+        legendContainer.appendChild(legendItem);
+    });
+}
+
+function prepararDatosBurbujas(datos) {
+    const BUBBLE_CHART_SIZE = 400;
+    const pack = d3.pack().size([BUBBLE_CHART_SIZE, BUBBLE_CHART_SIZE]).padding(15);
+    const root = { name: "root", children: datos };
+    const hierarchy = d3.hierarchy(root).sum(d => d.value);
+    const packedRoot = pack(hierarchy);
+    return packedRoot.leaves().map(node => ({
+        id: node.data.id, value: node.data.value, categoria: node.data.categoria,
+        x: node.x, y: node.y, r: node.r
+    }));
+}
+
+// --- FUNCIONES PARA GRÁFICOS DE MODALES (HEATMAP) ---
+// (Esta sección no requiere cambios para este paso, se mantiene igual)
+
+export function renderHeatmap(chartType, chartDomId, statPrefix, filtros) {
+    const chartDom = document.getElementById(chartDomId);
+    let currentInstance = (chartType === 'dist_vs_nivel') ? heatmapNivel : heatmapSubsector;
+
+    if (!currentInstance) {
+        currentInstance = echarts.init(chartDom);
+    }
+    currentInstance.showLoading();
+
+    const requestData = { ...filtros, type: chartType };
+
+    $.ajax({
+        url: window.dashboardConfig.apiUrls.analisisCruzado,
+        data: requestData,
+        dataType: 'json',
+        success: response => {
+            currentInstance.hideLoading();
+            
+            const kpi = response.kpiData;
+            $(`#${statPrefix}-total`).text(kpi.totalEstablecimientos || 0);
+            $(`#${statPrefix}-distritos`).text(kpi.totalDistritos || 0);
+            $(`#${statPrefix}-distrito-max`).text(kpi.distritoConMasCentros || 'N/A');
+            $(`#${statPrefix}-tipo-comun`).text(kpi.tipoMasComun || 'N/A');
+
+            const option = {
+                tooltip: {
+                    position: 'top',
+                    formatter: p => `<b>${p.value[2]}</b> establecimientos<br/>de tipo <b>${response.xAxisLabels[p.value[0]]}</b><br/>en <b>${response.yAxisLabels[p.value[1]]}</b>`
+                },
+                grid: { top: '5%', right: '2%', bottom: '15%', left: '3%', containLabel: true },
+                xAxis: { type: 'category', data: response.xAxisLabels, splitArea: { show: true } },
+                yAxis: { type: 'category', data: response.yAxisLabels, splitArea: { show: true } },
+                visualMap: {
+                    min: 1, max: Math.max(1, ...response.heatmapData.map(item => item[2])),
+                    calculable: true, orient: 'horizontal', left: 'center', bottom: '0%',
+                    inRange: { color: ['#eaf2fa', '#5b9bd5', '#1e3a5c'] }
+                },
+                series: [{
+                    name: 'Establecimientos', type: 'heatmap', data: response.heatmapData,
+                    label: { show: true, color: '#333', fontWeight: 'bold' },
+                    emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0, 0, 0, 0.5)' } }
+                }]
+            };
+            currentInstance.setOption(option);
+
+            if (chartType === 'dist_vs_nivel') heatmapNivel = currentInstance;
+            else heatmapSubsector = currentInstance;
+        },
+        error: () => {
+            currentInstance.hideLoading();
+        }
+    });
+}
+
+
+#### common_modules/map.js ####
+
+// static/js/common_modules/map.js
+// Módulo REUTILIZABLE para la gestión de mapas Leaflet.
+
+const initialView = { lat: -16.5000, lng: -68.1993, zoom: 11 };
+let map;
+let marcadores;
+let distritosLayer;
+let highlightedLayer = null;
+const distritosCentroids = {};
+
+function obtenerIcono(valor) {
+    const mappings = window.dashboardConfig.staticUrls.iconMappings;
+    return mappings[valor] || mappings['default'];
+}
+
+export function initMap() {
+    map = L.map('map', { zoomControl: false }).setView([initialView.lat, initialView.lng], initialView.zoom);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    marcadores = L.markerClusterGroup({
+        disableClusteringAtZoom: 13,
+        maxClusterRadius: 20
+    });
+    map.addLayer(marcadores);
+
+    const defaultStyle = { color: "#87CEEB", weight: 2, opacity: 0.8, fillOpacity: 0.2 };
+    const highlightStyle = { color: '#E14434', weight: 4, opacity: 1, fillOpacity: 0.3 };
+
+    distritosLayer = L.geoJSON(window.dashboardConfig.data.distritosGeojson, {
+        style: defaultStyle,
+        onEachFeature: (feature, layer) => {
+            if (feature.properties && feature.properties.distrito && feature.properties.centroid) {
+                distritosCentroids[feature.properties.distrito] = [feature.properties.centroid[1], feature.properties.centroid[0]];
+            }
+        }
+    }).addTo(map);
+
+    addCustomControls(defaultStyle, highlightStyle);
+    addLegend(); // Esta función ahora es dinámica
+
+    dibujarMarcadores(window.dashboardConfig.data.instituciones);
+}
+
+export function dibujarMarcadores(instituciones) {
+    marcadores.clearLayers();
+    const nuevosMarcadores = [];
+    const iconField = window.dashboardConfig.fieldMappings.iconField;
+
+    instituciones.forEach(institucion => {
+        if (!institucion.latitud || !institucion.longitud || isNaN(institucion.latitud) || isNaN(institucion.longitud)) return;
+        
+        const customIcon = L.icon({
+            iconUrl: obtenerIcono(institucion[iconField]),
+            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34],
+            shadowUrl: window.dashboardConfig.staticUrls.markerShadow, shadowSize: [41, 41]
+        });
+        
+        // Usamos el ID correcto (id_unidad para educación, id para hospitales)
+        const id = institucion.id_unidad || institucion.id;
+        const popupContent = `<div style="text-align: center;"><b>${institucion.nombre_establecimiento || institucion.nombre_unidad}</b><br>${institucion[iconField]}<br><br><button class="btn btn-primary btn-sm ver-mas-btn" data-id="${id}">Ver más</button></div>`;
+        const marker = L.marker([institucion.latitud, institucion.longitud], { icon: customIcon }).bindPopup(popupContent);
+        nuevosMarcadores.push(marker);
+    });
+    marcadores.addLayers(nuevosMarcadores);
+}
+
+export function actualizarMapa(filtros) {
+    $.ajax({
+        url: window.dashboardConfig.apiUrls.filtrarInstituciones,
+        data: filtros,
+        dataType: 'json',
+        success: data => dibujarMarcadores(data)
+    });
+}
+
+// --- Funciones auxiliares para controles y leyenda ---
+function addCustomControls(defaultStyle, highlightStyle) {
+    // ... (esta función no necesita cambios)
+    const zoomControl = L.control({ position: 'topleft' });
+    zoomControl.onAdd = map => {
+        const container = L.DomUtil.create('div', 'leaflet-zoom-control-container');
+        const select = L.DomUtil.create('select', 'form-control', container);
+        select.id = 'district-zoom-select';
+        select.innerHTML = '<option value="" disabled selected>Acercar a distrito</option>';
+        window.dashboardConfig.data.listaDistritosCompleta.forEach(d => {
+            select.innerHTML += `<option value="${d}">Distrito ${d}</option>`;
+        });
+        L.DomEvent.disableClickPropagation(container);
+        select.onchange = function () {
+            const distritoId = this.value;
+            if (highlightedLayer) highlightedLayer.setStyle(defaultStyle);
+            if (distritoId) {
+                map.setView(distritosCentroids[distritoId], 14);
+                distritosLayer.eachLayer(layer => {
+                    if (layer.feature.properties.distrito == distritoId) {
+                        layer.setStyle(highlightStyle);
+                        layer.bringToFront();
+                        highlightedLayer = layer;
+                    }
+                });
+            }
+        };
+        return container;
+    };
+    zoomControl.addTo(map);
+
+    const customZoomControl = L.control({ position: 'topleft' });
+    customZoomControl.onAdd = map => {
+        const container = L.DomUtil.create('div', 'custom-zoom-container');
+        const zoomContainer = L.DomUtil.create('div', 'leaflet-bar leaflet-control', container);
+        const zoomInButton = L.DomUtil.create('a', 'leaflet-control-zoom-in', zoomContainer);
+        zoomInButton.href = '#'; zoomInButton.title = 'Acercar'; zoomInButton.innerHTML = '+';
+        const zoomOutButton = L.DomUtil.create('a', 'leaflet-control-zoom-out', zoomContainer);
+        zoomOutButton.href = '#'; zoomOutButton.title = 'Alejar'; zoomOutButton.innerHTML = '&#x2212;';
+        const resetContainer = L.DomUtil.create('div', 'leaflet-bar leaflet-control custom-reset-button', container);
+        const resetButton = L.DomUtil.create('a', '', resetContainer);
+        resetButton.href = '#'; resetButton.title = 'Reiniciar vista'; resetButton.innerHTML = '&#x21BA;';
+        resetButton.style.fontSize = '1.4em';
+        L.DomEvent.disableClickPropagation(container);
+        L.DomEvent.on(zoomInButton, 'click', () => map.zoomIn());
+        L.DomEvent.on(zoomOutButton, 'click', () => map.zoomOut());
+        L.DomEvent.on(resetButton, 'click', () => {
+            map.setView([initialView.lat, initialView.lng], initialView.zoom);
+            if (highlightedLayer) highlightedLayer.setStyle(defaultStyle);
+            $('#district-zoom-select').val("");
+        });
+        return container;
+    };
+    customZoomControl.addTo(map);
+}
+
+/**
+ * ✅ CAMBIO: Esta función ahora es completamente dinámica.
+ * Construye la leyenda del mapa basándose en la configuración proporcionada
+ * en `window.dashboardConfig`.
+ */
+function addLegend() {
+    const legendConfig = window.dashboardConfig.legendSettings;
+    // Si no hay configuración para la leyenda, no hace nada.
+    if (!legendConfig) return;
+
+    const legend = L.control({ position: 'topright' });
+    legend.onAdd = map => {
+        const div = L.DomUtil.create('div', 'info legend');
+        const iconMappings = window.dashboardConfig.staticUrls.iconMappings;
+        
+        let listItems = '';
+        // Itera sobre el mapeo de iconos para crear cada línea de la leyenda
+        for (const key in iconMappings) {
+            // Ignoramos la clave 'default' para que no aparezca en la leyenda
+            if (key !== 'default') {
+                listItems += `<li><img src="${iconMappings[key]}"> ${key}</li>`;
+            }
+        }
+
+        // Usa el título de la configuración y la lista de items generada
+        div.innerHTML = `
+            <h5 style="margin-top:0;margin-bottom:10px;">${legendConfig.title}</h5>
+            <ul style="list-style:none;padding-left:0;margin:0;">
+                ${listItems}
+            </ul>`;
+            
+        $(div).find('li').css({ display: 'flex', alignItems: 'center', marginBottom: '7px' });
+        $(div).find('img').css({ width: '22px', height: '22px', marginRight: '9px' });
+        return div;
+    };
+    legend.addTo(map);
+}
+
+
+#### common_modules/ui.js ####
+
+// static/js/common_modules/ui.js
+// Módulo REUTILIZABLE para elementos de UI: filtros, modales, cards.
+
+import { renderHeatmap } from './charts.js';
+
+// --- LÓGICA DE INICIALIZACIÓN DE UI ---
+
+/**
+ * Inicializa los componentes principales de la UI y establece el callback para los filtros.
+ * @param {function} onFilterChangeCallback - Función a llamar cuando un filtro cambia.
+ */
+export function initUI(onFilterChangeCallback) {
+    $('.selectpicker').selectpicker({
+        countSelectedText: numSelected => `${numSelected} seleccionados`
+    });
+
+    $('[data-toggle="popover"]').popover();
+
+    $('.clear-selection-btn').on('click', function () {
+        const target = $(this).data('target');
+        $(target).val([]).selectpicker('refresh').trigger('change');
+        $(this).blur();
+    });
+
+    const filterSelectors = window.dashboardConfig.elementSelectors.filters.join(', ');
+    $(filterSelectors).on('change', onFilterChangeCallback);
+
+    initInfoModal();
+    initAnalysisModals(); // Esta función causaba el error
+}
+
+// --- LÓGICA DE TARJETAS (CARDS) ---
+
+function animateCounter(element, duration = 900) {
+    const target = +element.getAttribute('data-target');
+    if (isNaN(target)) return;
+    let startTimestamp = null;
+    const step = timestamp => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        element.innerText = Math.floor(progress * target).toLocaleString('es');
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        } else {
+            element.innerText = target.toLocaleString('es');
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
+export function actualizarCards(filtros) {
+    $.ajax({
+        url: window.dashboardConfig.apiUrls.generarDatosCards,
+        data: filtros,
+        dataType: 'json',
+        success: response => {
+            const cardSelectors = window.dashboardConfig.elementSelectors.cards;
+            
+            const totalElement = document.querySelector(cardSelectors.total);
+            if (totalElement) {
+                totalElement.setAttribute('data-target', response.total_establecimientos);
+                animateCounter(totalElement, 500);
+            }
+            
+            const maxElement = document.querySelector(cardSelectors.max);
+            if (maxElement) {
+                maxElement.innerText = response.distrito_max;
+            }
+        }
+    });
+}
+
+// --- LÓGICA DE MODALES ---
+
+function initInfoModal() {
+    $(document).on('click', '.ver-mas-btn', function () {
+        const institucionId = $(this).data('id');
+        const institucionData = window.dashboardConfig.data.instituciones.find(inst => inst.id_unidad == institucionId || inst.id == institucionId);
+        if (institucionData) {
+            poblarYMostrarModalInfo(institucionData);
+        }
+    });
+}
+
+function poblarYMostrarModalInfo(data) {
+    const mappings = window.dashboardConfig.fieldMappings;
+
+    for (const elementId in mappings) {
+        if (elementId === 'iconField') continue;
+
+        const mappingValue = mappings[elementId];
+        let textContent;
+
+        if (typeof mappingValue === 'function') {
+            textContent = mappingValue(data);
+        } else {
+            textContent = data[mappingValue] || 'No disponible';
+        }
+        
+        const elemento = $(`#${elementId}`);
+        elemento.text(textContent);
+
+        if (elementId.startsWith('modal-') && ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'].includes(elementId.split('-')[1])) {
+            elemento.removeClass('closed open-24h');
+            if (textContent.toLowerCase() === 'cerrado') {
+                elemento.addClass('closed');
+            } else if (textContent.toLowerCase() === '24 hrs') {
+                elemento.addClass('open-24h');
+            }
+        }
+    }
+
+    $('#infoModal [data-toggle="tooltip"]').tooltip();
+    $(window.dashboardConfig.elementSelectors.infoModal).modal('show');
+}
+
+/**
+ * Inicializa los listeners para los modales de análisis cruzado.
+ */
+function initAnalysisModals() {
+    // ✅ CORRECCIÓN: Comprobamos si la configuración para los modales de análisis existe.
+    // Si no existe (como en el dashboard de educación), esta función no hará nada y no causará un error.
+    if (!window.dashboardConfig.elementSelectors.analysisModals) {
+        return;
+    }
+
+    const modalSelectors = window.dashboardConfig.elementSelectors.analysisModals;
+    const statPrefixes = window.dashboardConfig.elementSelectors.analysisStatPrefixes;
+
+    $(modalSelectors.nivel).on('shown.bs.modal', () => {
+        const filtros = {
+            'distritos[]': $('#dropdown1').val(),
+            'niveles[]': $('#dropdown2').val(),
+            'subsectores[]': $('#dropdown3').val()
+        };
+        renderHeatmap('dist_vs_nivel', 'grafico-analisis-nivel', statPrefixes.nivel, filtros);
+    });
+
+    $(modalSelectors.subsector).on('shown.bs.modal', () => {
+        const filtros = {
+            'distritos[]': $('#dropdown1').val(),
+            'niveles[]': $('#dropdown2').val(),
+            'subsectores[]': $('#dropdown3').val()
+        };
+        renderHeatmap('dist_vs_subsector', 'grafico-analisis-subsector', statPrefixes.subsector, filtros);
+    });
+}
+
+
+#### educacion/dashboard.js ####
+
+// static/js/educacion/dashboard.js
+// Orquestador para el dashboard de EDUCACIÓN.
+
+// Importamos los MISMOS módulos comunes. ¡No se cambia nada aquí!
+import { initMap, actualizarMapa } from '../common_modules/map.js';
+import { initCharts, actualizarGraficos } from '../common_modules/charts.js'; // Lo adaptaremos
+import { initUI, actualizarCards } from '../common_modules/ui.js';
+
+// --- ADAPTACIÓN DE CHARTS.JS ---
+// Como charts.js fue hecho para los 4 gráficos de hospitales, crearemos
+// una función de actualización más simple aquí que solo llame a los gráficos que existen.
+function actualizarGraficosEducacion(filtros) {
+    actualizarGraficoDependencia(filtros);
+    // Si agregas más gráficos, llama a sus funciones de actualización aquí.
+}
+
+// Se ejecuta cuando el DOM está completamente cargado.
+$(document).ready(function () {
+    // 1. Inicializa la UI y le pasa la función de callback.
+    initUI(actualizarContenido);
+
+    // 2. Inicializa el mapa.
+    initMap();
+
+    // 3. Inicializa los contenedores de los gráficos que existen en este dashboard.
+    initGraficosEducacion();
+
+    // 4. Carga inicial de datos.
+    actualizarContenido();
+});
+
+/**
+ * Función central que se llama cada vez que un filtro cambia.
+ */
+function actualizarContenido() {
+    const selectors = window.dashboardConfig.elementSelectors.filters;
+    const filtros = {
+        'distritos[]': $(selectors[0]).val(),
+        'dependencias[]': $(selectors[1]).val(),
+        'subsistemas[]': $(selectors[2]).val()
+    };
+
+    actualizarMapa(filtros);
+    actualizarGraficosEducacion(filtros);
+    actualizarCards(filtros);
+}
+
+// --- LÓGICA DE GRÁFICOS ESPECÍFICA DE EDUCACIÓN ---
+
+let chartDependencia;
+
+function initGraficosEducacion() {
+    const chartContainer = document.getElementById('grafico-dependencia');
+    if (chartContainer) {
+        chartDependencia = echarts.init(chartContainer);
+    }
+}
+
+function actualizarGraficoDependencia(filtros) {
+    if (!chartDependencia) return;
+
+    $.ajax({
+        url: window.dashboardConfig.apiUrls.graficoDependencia,
+        data: filtros,
+        dataType: 'json',
+        success: response => {
+            const settings = window.dashboardConfig.chartSettings.dependencia;
+            const option = {
+                title: { text: settings.title, left: 'center' },
+                tooltip: { trigger: 'item', formatter: '{a} <br/>{b}: {c} ({d}%)' },
+                legend: { orient: 'vertical', left: 'left', top: 'bottom' },
+                series: [{
+                    name: 'Dependencia',
+                    type: 'pie',
+                    radius: '60%',
+                    data: response,
+                    emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' } },
+                    itemStyle: {
+                        color: params => settings.colorMappings[params.name] || settings.colorMappings['default']
+                    }
+                }]
+            };
+            chartDependencia.setOption(option);
+        }
+    });
+}
+
+
+#### hospitales/dashboard.js ####
+
+// static/js/hospitales/dashboard.js
+// Archivo principal que ORQUESTA los módulos para el dashboard de hospitales.
+
+// Importamos los módulos compartidos desde la carpeta común.
+import { initMap, actualizarMapa } from '../common_modules/map.js';
+import { initCharts, actualizarGraficos } from '../common_modules/charts.js';
+import { initUI, actualizarCards } from '../common_modules/ui.js';
+
+// Se ejecuta cuando el DOM está completamente cargado.
+$(document).ready(function () {
+    
+    // 1. Inicializa los componentes de la UI y le pasa la función de callback.
+    initUI(actualizarContenido);
+
+    // 2. Inicializa el mapa de Leaflet.
+    initMap();
+
+    // 3. Inicializa las instancias de los gráficos de ECharts.
+    initCharts();
+
+    // 4. Realiza la primera carga de datos para los componentes dinámicos.
+    actualizarContenido();
+});
+
+/**
+ * Función central que se llama cada vez que un filtro cambia.
+ * Recopila los valores actuales de los filtros y actualiza todos los componentes.
+ */
+function actualizarContenido() {
+    // ✅ CAMBIO: Lee los selectores de los filtros desde la config para ser genérico.
+    const filtroSelectors = window.dashboardConfig.elementSelectors.filters;
+    const filtros = {
+        'distritos[]': $(filtroSelectors[0]).val(),
+        'niveles[]': $(filtroSelectors[1]).val(),
+        'subsectores[]': $(filtroSelectors[2]).val()
+    };
+
+    actualizarMapa(filtros);
+    actualizarGraficos(filtros);
+    actualizarCards(filtros);
+}
+
+
+#### hospitales/modules/config.js ####
+
+// hospitales/static/hospitales/js/modules/config.js
+// Módulo específico que simplemente exporta la configuración global
+// para que el orquestador la pueda importar de forma explícita.
+
+export const dashboardConfig = window.dashboardConfig;
+
+

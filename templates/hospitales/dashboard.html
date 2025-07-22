@@ -1,0 +1,266 @@
+{% extends 'base.html' %} 
+{% load static %} 
+{% block title %}Mapa de El Alto{% endblock %} 
+{% block extra_head %}
+<!-- CDN CSS para Bootstrap Select -->
+<link
+  rel="stylesheet"
+  href="{% static 'css_libs/bootstrap-select.min.css' %}"
+/>
+<!-- Leaflet.markercluster CSS y JS -->
+<link
+  rel="stylesheet"
+  href="{% static 'css_libs/MarkerCluster.css' %}"
+/>
+<link
+  rel="stylesheet"
+  href="{% static 'css_libs/MarkerCluster.Default.css' %}"
+/>
+<script src="{% static 'js_libs\leaflet\leaflet.markercluster.js' %}"></script>
+<!-- CDN para D3.js (necesario para el gráfico de burbujas) -->
+<script src="{% static 'js_libs\d3-hierarchy.min.js' %}"></script>
+
+<!-- Estilos del dashboard -->
+ <!-- <link rel="stylesheet" href="{% static 'css/hospitales/dashboard.css' %}" /> -->
+
+{% endblock extra_head %} 
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <!-- Filtros del Dashboard -->
+    {% include 'hospitales/components/_filtros_dashboard.html' %}
+    <div class="row">
+      <!-- Card para el mapa, tamaño 7 -->
+      <div class="col-md-7">
+        <div class="card">
+          <div class="card-body p-0">
+            <div id="map" style="width: 100%; height: 550px"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Card lateral, tamaño 5, CON PESTAÑAS PARA CADA GRÁFICO -->
+      <div class="col-md-5">
+        <div class="card">
+          <div class="card-body p-0">
+            <!-- Pestañas con nombres descriptivos -->
+            <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
+              <li class="nav-item">
+                <a
+                  class="nav-link active"
+                  id="distrito-tab"
+                  data-toggle="tab"
+                  href="#distrito"
+                  role="tab"
+                  aria-controls="distrito"
+                  aria-selected="true"
+                  >Por Distrito</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  id="nivel-tab"
+                  data-toggle="tab"
+                  href="#nivel"
+                  role="tab"
+                  aria-controls="nivel"
+                  aria-selected="false"
+                  >Por Nivel</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  id="subsector-tab"
+                  data-toggle="tab"
+                  href="#subsector"
+                  role="tab"
+                  aria-controls="subsector"
+                  aria-selected="false"
+                  >Por Subsector</a
+                >
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" id="comp-tab" data-toggle="tab" href="#comparativa" role="tab"
+                      aria-controls="comparativa" aria-selected="false">Comparativa</a>
+              </li>
+            </ul>
+            <!-- Contenido de las pestañas -->
+            <div class="tab-content p-3" id="myTabContent">
+              <!-- Pestaña 1: Gráfico de Barras por Distrito -->
+              <div class="tab-pane fade show active" id="distrito" role="tabpanel" aria-labelledby="distrito-tab">
+                    <div id="grafico-distritos" style="width: 100%; height: 400px;"></div>
+
+                    <!-- ===== INICIO DE LAS TARJETAS (CON MARGEN REDUCIDO) ===== -->
+                    <div class="row mt-2">
+                        <!-- Tarjeta 1: Establecimientos Totales -->
+                        <div class="col-lg-6 mb-3">
+                            <div class="stat-card h-100">
+                                <div class="icon"><i class="fa fa-hospital-o"></i></div>
+                                <div class="info">
+                                    <div class="stat-number" id="stat-total-establecimientos" data-target="{{ total_establecimientos_inicial }}">0</div>
+                                    <p class="stat-label">Establecimientos Totales</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tarjeta 2: Distrito con más establecimientos -->
+                        <div class="col-lg-6 mb-3">
+                            <div class="stat-card h-100">
+                                <div class="icon"><i class="fa fa-trophy"></i></div>
+                                <div class="info">
+                                    <div id="stat-distrito-max" class="stat-number">{{ distrito_max_inicial }}</div>
+                                    <p class="stat-label">Con más establecimientos</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ===== FIN DE LAS TARJETAS ===== -->
+                </div>
+
+
+              <!-- Pestaña 2: Gráfico de Burbujas por Nivel -->
+                <div class="tab-pane fade" id="nivel" role="tabpanel" aria-labelledby="nivel-tab">
+                    <!-- El contenedor del gráfico ahora se llama 'grafico-burbujas-nivel' -->
+                    <div id="grafico-burbujas-nivel" style="width: 100%; height: 400px;"></div>
+                    <!-- Contenedor para la leyenda dinámica -->
+                    <div id="leyenda-burbujas-nivel" class="legend-container"></div>
+                </div>
+
+              <!-- Pestaña 3: Gráfico de Tarta por Subsector -->
+              <div
+                class="tab-pane fade"
+                id="subsector"
+                role="tabpanel"
+                aria-labelledby="subsector-tab"
+              >
+                <div
+                  id="grafico-subsector"
+                  style="width: 100%; height: 520px"
+                ></div>
+              </div>
+              <!-- Pestaña 4: Gráfico Comparativo Nivel vs Subsector -->
+              <div class="tab-pane fade" id="comparativa" role="tabpanel" aria-labelledby="comp-tab">
+                  <div id="grafico-comparativa" style="width: 100%; height: 520px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Modal para mostrar información del establecimiento -->
+{% include 'hospitales/components/_modal_info_establecimiento.html' %} 
+{% if not instituciones %}
+<div class="alert alert-warning" role="alert">
+  No se encontraron instituciones para mostrar en el mapa.
+</div>
+{% endif %} 
+{% if not distritos_geojson %}
+<div class="alert alert-warning" role="alert">
+  No se encontraron distritos para mostrar en el mapa.
+</div>
+{% endif %} 
+
+<!-- Modal para Filtros de Distrito y Nivel -->
+{% include 'hospitales/components/_modal_analisis_nivel.html' %}
+<!-- Modal para Filtros de Distrito y Subsector -->
+{% include 'hospitales/components/_modal_analisis_subsector.html' %}
+{% endblock content %} 
+
+{% block extra_js %}
+<!-- CDN JS para Bootstrap Select -->
+<script src="{% static 'js_libs\bootstrap-select.min.js' %}"></script>
+
+<!-- dashboard.html (dentro de la etiqueta <script> al final del archivo) -->
+
+// hospitales/dashboard.html
+
+<script>
+  // ==================================================================
+  //  PUENTE DE DATOS: Django -> JavaScript
+  // ==================================================================
+  window.dashboardConfig = {
+      data: {
+          instituciones: {{ instituciones|safe }},
+          distritosGeojson: {{ distritos_geojson|safe }},
+          listaDistritosCompleta: {{ lista_distritos_completa|safe }}
+      },
+      apiUrls: {
+          filtrarInstituciones: "{% url 'hospitales:filtrar_instituciones_api' %}",
+          graficoDistritos: "{% url 'hospitales:generar_grafico_api' %}",
+          graficoNivel: "{% url 'hospitales:generar_grafico_nivel_api' %}",
+          graficoSubsector: "{% url 'hospitales:generar_grafico_subsector_api' %}",
+          graficoComparativa: "{% url 'hospitales:generar_grafico_niveles_subsectores_api' %}",
+          generarDatosCards: "{% url 'hospitales:generar_datos_cards_api' %}",
+          analisisCruzado: "{% url 'hospitales:generar_analisis_cruzado_api' %}"
+      },
+      staticUrls: {
+          markerShadow: '{% static "img/leaflet/marker-shadow.png" %}',
+          iconMappings: {
+              '1ER NIVEL': '{% static "img/leaflet/salud/hospital1.png" %}',
+              '2DO NIVEL': '{% static "img/leaflet/salud/hospital2.png" %}',
+              '3ER NIVEL': '{% static "img/leaflet/salud/hospital3.png" %}',
+              'BANCO DE SANGRE': '{% static "img/leaflet/salud/gota.png" %}',
+              'T. NUCLEAR': '{% static "img/leaflet/salud/nuclear.png" %}',
+              'default': '{% static "img/leaflet/marker-icon.png" %}'
+          }
+      },
+      // ✅ CORRECCIÓN: Añadimos la configuración de la leyenda que ahora es necesaria.
+      legendSettings: {
+          title: 'Centros de Salud'
+      },
+      chartSettings: {
+          distritos: { title: 'Centros por Distrito' },
+          nivel: {
+              title: 'Distribución por Nivel',
+              colorMappings: {
+                  '1ER NIVEL': '#69b3a2', '2DO NIVEL': '#e08e6d', '3ER NIVEL': '#6d8ee0',
+                  'BANCO DE SANGRE': '#ffc107', 'T. NUCLEAR': '#dc3545', 'default': '#cccccc'
+              }
+          },
+          subsector: { title: 'Distribución por Subsector' },
+          comparativa: { title: 'Niveles por Subsector' }
+      },
+      elementSelectors: {
+          filters: ['#dropdown1', '#dropdown2', '#dropdown3'],
+          infoModal: '#infoModal',
+          analysisModals: {
+              nivel: '#modalAnalisisNivel',
+              subsector: '#modalAnalisisSubsector'
+          },
+          cards: {
+              total: '#stat-total-establecimientos',
+              max: '#stat-distrito-max'
+          },
+          analysisStatPrefixes: {
+              nivel: 'stat-nivel',
+              subsector: 'stat-subsector'
+          }
+      },
+      fieldMappings: {
+          iconField: 'nivel',
+          'modal-nombre': 'nombre_establecimiento',
+          'modal-red': 'red_establecimiento',
+          'modal-subsector': 'subsector',
+          'modal-tipo-nivel': data => `${data.tipo || ''} - ${data.nivel || ''}`,
+          'modal-direccion': 'direccion',
+          'modal-telefono': 'telefono_fijo',
+          'modal-whatsapp': 'whatsapp',
+          'modal-lunes': 'lunes',
+          'modal-martes': 'martes',
+          'modal-miercoles': 'miercoles',
+          'modal-jueves': 'jueves',
+          'modal-viernes': 'viernes',
+          'modal-sabado': 'sabado',
+          'modal-domingo': 'domingo'
+      }
+  };
+</script>
+
+
+<!-- ✅ Carga de nuestro archivo de lógica principal COMO MÓDULO -->
+<script type="module" src="{% static 'js/hospitales/dashboard.js' %}"></script>
+
+{% endblock extra_js %}

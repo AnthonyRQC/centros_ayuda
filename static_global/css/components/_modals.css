@@ -1,0 +1,279 @@
+/* ==========================================================================
+   ESTILOS PARA MODALES
+   Contiene todos los estilos para los pop-ups de la aplicación,
+   incluyendo el modal de información del establecimiento y los
+   modales de análisis cruzado.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Estilos Generales y Contenedor Principal del Modal
+   -------------------------------------------------------------------------- */
+
+/* Reseteo del contenedor de Bootstrap para tener control total sobre el diseño */
+.modal-content {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  /* Permite hacer clic "a través" del fondo del modal, en el mapa */
+  pointer-events: none;
+}
+
+/* La "tarjeta" personalizada que contiene el contenido del modal */
+.custom-modal-card {
+  background-color: var(--color-background-modal);
+  border-radius: var(--border-radius-modal);
+  margin: auto;
+  padding: 30px 40px; /* Padding generoso para los modales grandes */
+  box-shadow: 0 10px 30px var(--color-background-modal-shadow);
+  position: relative;
+  /* Devuelve la capacidad de interactuar con la tarjeta */
+  pointer-events: auto;
+}
+
+/* Botón de cierre universal para todos los modales */
+.custom-close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  color: var(--color-text-secondary);
+  font-size: 28px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 1051; /* Z-index alto para estar sobre cualquier contenido del modal */
+}
+
+.custom-close-button:hover {
+  color: var(--color-text-primary);
+  background-color: var(--border-color-light);
+}
+
+
+/* --------------------------------------------------------------------------
+   2. Estilos Específicos para el Modal de Información del Establecimiento
+   -------------------------------------------------------------------------- */
+
+.main-info-column {
+  text-align: center;
+}
+
+.modal-icon {
+  font-size: 75px;
+  color: var(--color-accent);
+  margin-bottom: 20px;
+}
+
+.modal-title-custom {
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.modal-secondary-info,
+.modal-subsector-highlight,
+.modal-subtitle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-secondary-info {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-label);
+  margin-bottom: 4px;
+}
+
+.modal-subsector-highlight {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: 8px;
+}
+
+.modal-subtitle {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  margin-bottom: 25px;
+}
+
+.info-tooltip-icon {
+  color: var(--border-color-medium);
+  font-size: 16px;
+  margin-left: 8px;
+  cursor: help;
+  transition: color 0.2s ease-in-out;
+}
+
+.info-tooltip-icon:hover {
+  color: var(--color-accent-hover);
+}
+
+.info-section {
+  text-align: left;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-label);
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.info-item i {
+  color: var(--color-accent);
+  font-size: 18px;
+  width: 25px;
+  text-align: center;
+  margin-right: 8px;
+}
+
+/* Columna de horarios */
+.horarios-column {
+  border-left: 1px solid var(--border-color-light);
+  padding-left: 25px;
+}
+
+.horarios-section {
+  text-align: left;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 15px;
+}
+
+.section-title i {
+  color: var(--color-accent);
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+.horario-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 5px;
+  border-bottom: 1px solid var(--border-color-light);
+  font-size: 14px;
+}
+
+.horario-row:last-child {
+  border-bottom: none;
+}
+
+.horario-day {
+  font-weight: 500;
+  color: var(--color-text-label);
+}
+
+.horario-time {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.horario-time.closed {
+  color: var(--color-status-closed);
+}
+
+.horario-time.open-24h {
+  color: var(--color-status-open-24h);
+  font-weight: 600;
+}
+
+
+/* --------------------------------------------------------------------------
+   3. Estilos Específicos para los Modales de Análisis Cruzado
+   -------------------------------------------------------------------------- */
+
+.custom-modal-card {
+    min-height: 550px; /* Altura mínima para los modales de análisis */
+}
+
+.dashboard-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 20px;
+}
+
+.dashboard-section-title i {
+    margin-right: 10px;
+    color: var(--color-primary); /* Usa el color primario para los íconos de título */
+}
+
+.stats-column {
+    border-left: 1px solid var(--border-color-light);
+    padding-left: 30px;
+}
+
+/* Tarjetas de estadísticas DENTRO del modal de análisis */
+.stats-column .stat-card {
+    background-color: #f8f9fa; /* Un gris muy claro para diferenciar */
+    border-radius: var(--border-radius-card);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    box-shadow: none; /* Sin sombra para un look más plano dentro del modal */
+}
+
+.stats-column .stat-card .icon {
+    font-size: 28px;
+    color: var(--color-primary);
+    margin-right: 20px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eaf2fa; /* Un azul muy claro, derivado del primario */
+    border-radius: 50%;
+}
+
+.stats-column .stat-card .info .stat-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.stats-column .stat-card .info .stat-label {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+
+/* --------------------------------------------------------------------------
+   4. Media Queries para Responsividad
+   -------------------------------------------------------------------------- */
+
+/* Para pantallas medianas y pequeñas, quitar el borde lateral y ajustar márgenes */
+@media (max-width: 991.98px) {
+    .stats-column {
+        border-left: none;
+        padding-left: 15px;
+        margin-top: 30px;
+    }
+}
+
+/* Para pantallas pequeñas, quitar el borde lateral de la columna de horarios */
+@media (max-width: 767.98px) {
+  .horarios-column {
+    border-left: none;
+    padding-left: 0;
+    margin-top: 20px;
+  }
+}

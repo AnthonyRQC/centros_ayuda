@@ -1,0 +1,4 @@
+/* static/css/base_theme.css */
+/* Este archivo solo importa las variables de color base */
+
+@import "base/_variables.css";

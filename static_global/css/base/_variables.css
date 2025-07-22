@@ -1,0 +1,42 @@
+/* static/css/base/_variables.css */
+/* Este archivo define el tema de color por defecto (Centros de Salud) */
+
+:root {
+  /* Colores del Layout */
+  --color-sidebar-bg: #2C5364;
+  --color-navbar-bg: #44687A;
+  --color-navbar-hover: #698795;
+  --color-text-light: #f8f9fa;
+
+  /* Colores de Texto */
+  --color-text-light: #f8f9fa;
+  --color-text-primary: #333;
+  --color-text-secondary: #777;
+  --color-text-label: #555;
+
+  /* Colores de Acento y Estado (para botones de info/danger) */
+  --color-accent-info: #17a2b8;
+  --color-accent-danger: #dc3545;
+  --color-accent-hover: #138496;
+  
+  /* ✅ NUEVO: Colores específicos para los Dropdowns */
+  --color-dropdown-bg: #578fca; /* El celeste oscuro original del botón */
+  --color-dropdown-bg-hover: #4a7fb9;
+  --color-dropdown-menu-hover: #eaf2fa; /* Un azul muy claro para el hover de las opciones */
+  --color-dropdown-menu-selected: #d4e4f5; /* Un azul un poco más oscuro para las opciones seleccionadas */
+  
+  /* Colores de Componentes Específicos */
+  --color-background-legend: #fff8e1;
+  --color-background-card: #ffffff;
+  --color-background-card-hover-shadow: rgba(0, 0, 0, 0.08);
+  --color-background-modal: #f0f8ff; /* AliceBlue - el celeste suave para el fondo del modal */
+  --color-background-modal-shadow: rgba(0, 0, 0, 0.1);
+   /* ✅ NUEVO: Color de fondo para las etiquetas estáticas del mapa */
+  --color-map-label-bg: #fefdeb; /* Un crema muy claro */
+  
+  /* Bordes y Radios */
+  --border-radius-card: 15px;
+  --border-radius-modal: 20px;
+  --border-color-light: #f0f0f0;
+  --border-color-medium: #e3e3e3;
+}

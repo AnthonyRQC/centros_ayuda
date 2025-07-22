@@ -1,0 +1,1790 @@
+#### base.html ####
+
+{% load static %} {# ¡Importante! Para usar la etiqueta static #}
+
+<!DOCTYPE html>
+<html lang="en">
+  <!-- templates/base.html -->
+  <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>{% block title %}Centro de Ayuda{% endblock %}</title>
+
+      <!-- Google Font, Font Awesome, AdminLTE -->
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"/>
+      <link rel="stylesheet" href="{% static 'adminlte/plugins/fontawesome-free/css/all.min.css' %}"/>
+      <link rel="stylesheet" href="{% static 'adminlte/dist/css/adminlte.min.css' %}" />
+      
+      <!-- ✅ INICIO DE LA CORRECCIÓN DE ESTILOS -->
+
+      <!-- 1. Carga las variables de color BASE. -->
+      <link rel="stylesheet" href="{% static 'css/base_theme.css' %}">
+
+      <!-- 2. Permite que las páginas hijas inyecten un TEMA específico (como el de educación). -->
+      {% block theme_style %}{% endblock %}
+
+      <!-- 3. Carga los estilos PRINCIPALES que usan las variables. -->
+      <link rel="stylesheet" href="{% static 'css/components.css' %}">
+      
+      <!-- ✅ FIN DE LA CORRECCIÓN DE ESTILOS -->
+      
+      <!-- Estilos de leaflet -->
+      <link rel="stylesheet" href="{% static 'css_libs/leaflet.css' %}" />    
+      <!-- Leaflet JS, Echarts JS, etc. -->
+      <script src="{% static 'js_libs/leaflet/leaflet.js' %}"></script>
+      <script src="{% static 'js_libs/echarts/echarts.min.js' %}"></script>
+    
+      {% block extra_head %}{% endblock %}
+  </head>
+
+  <body class="hold-transition sidebar-collapse layout-top-nav {% block body_class %}{% endblock %}">
+    <!-- Site wrapper -->
+    <div class="wrapper">
+      <!-- Navbar -->
+      {% include 'partials/_navbar.html' %}
+      <!-- /.Navbar -->
+
+      <!-- sidebar -->
+     {% include 'partials/_sidebar.html' %} 
+      <!-- /.sidebar -->
+
+      <!-- Content Wrapper. Contains page content -->
+      <div class="content-wrapper">
+          <div class="content-header">
+              <div class="container-fluid">
+                  <div class="row mb-2">
+                      <div class="col-sm-6">
+                          <h1 class="m-0">{% block page_title %}{% endblock %}</h1>
+                      </div>
+                      <div class="col-sm-6">
+                          {% block breadcrumbs %}{% endblock %}
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <section class="content">
+              <div class="container-fluid">
+                  {% block content %}
+                  {# Contenido específico de cada dashboard aquí #}
+                  {% endblock %}
+              </div>
+          </section>
+      </div>
+      <!-- /.content-wrapper -->
+
+      <!-- footer -->
+      {% include 'partials/_footer.html' %}
+      <!-- /.footer -->
+
+    </div>
+    <!-- ./wrapper -->
+
+    <!-- jQuery -->
+    <script src="{% static 'adminlte/plugins/jquery/jquery.min.js' %}"></script>
+    <!-- Bootstrap 4 -->
+    <script src="{% static 'adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- AdminLTE App -->
+    <script src="{% static 'adminlte/dist/js/adminlte.min.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %} {# Para JS adicionales por página #}
+  </body>
+</html>
+
+#### directorios_Atxt.py ####
+
+import os
+
+# Nombre del archivo de salida. No se incluirá a sí mismo en el compilado.
+output_filename = "compilado.txt"
+
+# Extensiones de archivo que se incluirán. Puedes modificar esta lista.
+# Si quieres incluir todos los archivos, deja la lista vacía: included_extensions = []
+included_extensions = ['.js', '.css', '.html', '.py', '.txt']
+
+def compile_files_in_directory(directory, output_file):
+    """
+    Recorre un directorio y sus subdirectorios, leyendo los archivos
+    y escribiendo su contenido en un archivo de salida.
+    """
+    print(f"Escaneando el directorio: {directory}")
+    
+    # os.walk() recorre el árbol de directorios de forma recursiva [[5]] [[7]]
+    for root, dirs, files in os.walk(directory):
+        for filename in files:
+            # Ignorar el propio script de salida
+            if filename == output_filename:
+                continue
+
+            file_path = os.path.join(root, filename)
+            
+            # Obtener la ruta relativa para un encabezado más limpio
+            relative_path = os.path.relpath(file_path, start=directory)
+
+            # Comprobar si el archivo tiene una de las extensiones deseadas
+            # Si la lista de extensiones está vacía, se incluyen todos los archivos.
+            if not included_extensions or any(filename.endswith(ext) for ext in included_extensions):
+                try:
+                    # Escribir el encabezado con la ruta del archivo [[2]]
+                    header = f"#### {relative_path.replace(os.sep, '/')} ####\n\n"
+                    output_file.write(header)
+                    
+                    # Abrir y leer el contenido del archivo [[1]]
+                    with open(file_path, 'r', encoding='utf-8', errors='ignore') as input_file:
+                        content = input_file.read()
+                        output_file.write(content)
+                    
+                    # Añadir un par de saltos de línea para separar los archivos
+                    output_file.write("\n\n")
+                    print(f" - Archivo añadido: {relative_path}")
+
+                except Exception as e:
+                    # Manejar posibles errores, como no poder leer un archivo
+                    error_message = f"**** No se pudo leer el archivo: {relative_path} | Error: {e} ****\n\n"
+                    output_file.write(error_message)
+                    print(f" ! Error al leer {relative_path}: {e}")
+
+
+# Obtener el directorio donde se está ejecutando el script
+current_directory = os.path.dirname(os.path.abspath(__file__))
+
+# Ruta completa del archivo de salida
+output_filepath = os.path.join(current_directory, output_filename)
+
+# Abrir el archivo de salida en modo escritura ('w') [[3]]
+# El modo 'w' crea el archivo si no existe o lo sobrescribe si ya existe.
+try:
+    with open(output_filepath, 'w', encoding='utf-8') as f:
+        print(f"Creando archivo de salida en: {output_filepath}")
+        compile_files_in_directory(current_directory, f)
+    print("\n¡Proceso completado!")
+    print(f"Todos los archivos han sido compilados en '{output_filename}'")
+except IOError as e:
+    print(f"Error al abrir o escribir en el archivo de salida: {e}") [[10]]
+
+
+
+#### core/home.html ####
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inicio{% endblock %} {# Título que aparecerá en la pestaña del navegador #}
+
+{% block page_title %}{{ dashboard_title }}{% endblock %} {# Título grande en el contenido de AdminLTE #}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Inicio</a></li>
+        <li class="breadcrumb-item active">Panel Principal</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Bienvenido a tu Aplicación de Dashboards</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Este es el panel principal. Utiliza el menú de navegación lateral para explorar los diferentes dashboards de instituciones.
+                    </p>
+                    <p>
+                        Actualmente, puedes visitar:
+                        <ul>
+                            <li><a href="#">Dashboard de Colegios</a></li>
+                            <li><a href="{% url 'iglesias:dashboard' %}">Dashboard de Iglesias</a></li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+#### educacion/dashboard_educacion.html ####
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard de Educación{% endblock %}
+
+{# ✅ CAMBIO: Dejamos este bloque vacío para eliminar el título grande de la página #}
+{% block page_title %}{% endblock %}
+
+{% block theme_style %}
+    <link rel="stylesheet" href="{% static 'css/educacion/theme.css' %}">
+{% endblock %}
+
+{% block body_class %}theme-educacion{% endblock %}
+
+
+{% block extra_head %}
+<link
+  rel="stylesheet"
+  href="{% static 'css_libs/bootstrap-select.min.css' %}"
+/>
+<!-- Leaflet.markercluster CSS -->
+<link
+  rel="stylesheet"
+  href="{% static 'css_libs/MarkerCluster.css' %}"
+/>
+<link
+  rel="stylesheet"
+  href="{% static 'css_libs/MarkerCluster.Default.css' %}"
+/>
+<!-- Cambiando colores del body -->
+<link rel="stylesheet" href="{% static 'css/educacion/theme.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <!-- Filtros del Dashboard -->
+    <div class="row">
+        <div class="col-12">
+            {% include 'educacion/components/_filtros_educacion.html' %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- ✅ CAMBIO: El mapa ahora ocupa 7 de 12 columnas (col-md-7) -->
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-body p-0">
+                    <!-- ✅ CAMBIO: Altura del mapa ajustada a 550px para consistencia -->
+                    <div id="map" style="width: 100%; height: 550px"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ CAMBIO: Nueva columna para la tarjeta con pestañas (col-md-5) -->
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-body p-0">
+                    <!-- Pestañas para los gráficos de Educación -->
+                    <ul class="nav nav-tabs nav-fill" id="educacionTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="dependencia-tab" data-toggle="tab" href="#dependencia" role="tab" aria-controls="dependencia" aria-selected="true">Por Dependencia</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="subsistema-tab" data-toggle="tab" href="#subsistema" role="tab" aria-controls="subsistema" aria-selected="false">Por Subsistema</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="turno-tab" data-toggle="tab" href="#turno" role="tab" aria-controls="turno" aria-selected="false">Por Turno</a>
+                        </li>
+                    </ul>
+                    <!-- Contenido de las pestañas -->
+                    <div class="tab-content p-3" id="educacionTabContent">
+                        <!-- Pestaña 1: Gráfico por Dependencia y Cards -->
+                        <div class="tab-pane fade show active" id="dependencia" role="tabpanel" aria-labelledby="dependencia-tab">
+                            <!-- ✅ MOVIDO: El gráfico de dependencia ahora está dentro de la pestaña -->
+                            <div id="grafico-dependencia" style="width: 100%; height: 400px;"></div>
+
+                            <!-- ✅ MOVIDO: Los cards de estadísticas ahora están aquí abajo -->
+                            <div class="row mt-2">
+                                <div class="col-lg-6 mb-3">
+                                    <div class="small-box bg-info h-100">
+                                        <div class="inner">
+                                            <h3 id="stat-total-establecimientos">0</h3>
+                                            <p>Total Unidades</p>
+                                        </div>
+                                        <div class="icon"><i class="fas fa-school"></i></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 mb-3">
+                                    <div class="small-box bg-success h-100">
+                                        <div class="inner">
+                                            <h3 id="stat-distrito-max" style="font-size: 1.8rem;">N/A</h3>
+                                            <p>Distrito con más Unidades</p>
+                                        </div>
+                                        <div class="icon"><i class="fas fa-map-pin"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pestaña 2: Placeholder para Gráfico por Subsistema -->
+                        <div class="tab-pane fade" id="subsistema" role="tabpanel" aria-labelledby="subsistema-tab">
+                            <div id="grafico-subsistema" style="width: 100%; height: 520px;"></div>
+                            <p class="text-center text-muted mt-3">Gráfico por subsistema se configurará aquí.</p>
+                        </div>
+
+                        <!-- Pestaña 3: Placeholder para Gráfico por Turno -->
+                        <div class="tab-pane fade" id="turno" role="tabpanel" aria-labelledby="turno-tab">
+                            <div id="grafico-turno" style="width: 100%; height: 520px;"></div>
+                            <p class="text-center text-muted mt-3">Gráfico por turno se configurará aquí.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- JS para Bootstrap Select -->
+<script src="{% static 'js_libs/bootstrap-select.min.js' %}"></script>
+<!-- JS para Leaflet MarkerCluster -->
+<script src="{% static 'js_libs/leaflet/leaflet.markercluster.js' %}"></script>
+<!-- D3.js (si usas gráficos de burbujas en el futuro) -->
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<!-- ================================================================== -->
+<!-- PUENTE DE DATOS: Django -> JavaScript -->
+<!-- ================================================================== -->
+<script>
+  window.dashboardConfig = {
+      data: {
+          instituciones: {{ unidades_educativas_json|safe }},
+          distritosGeojson: {{ distritos_geojson|safe }},
+          listaDistritosCompleta: {{ lista_distritos_completa|safe }}
+      },
+      apiUrls: {
+          filtrarInstituciones: "{% url 'educacion:filtrar_unidades_api' %}",
+          generarDatosCards: "{% url 'educacion:generar_datos_cards_api' %}",
+          graficoDependencia: "{% url 'educacion:generar_grafico_dependencia_api' %}"
+          // Aquí añadirás las URLs para las nuevas APIs de los otros gráficos
+      },
+      staticUrls: {
+          markerShadow: '{% static "img/leaflet/marker-shadow.png" %}',
+          iconMappings: {
+              'FISCAL': '{% static "img/leaflet/educacion/educacion1.png" %}',
+              'PRIVADA': '{% static "img/leaflet/educacion/educacion4.png" %}',
+              'CONVENIO': '{% static "img/leaflet/educacion/educacion3.png" %}',
+              'default': '{% static "img/leaflet/marker-icon.png" %}'
+          }
+      },
+      legendSettings: {
+          title: 'Unidades Educativas'
+      },
+      chartSettings: {
+          dependencia: {
+              title: 'Unidades por Dependencia',
+              colorMappings: {
+                  'FISCAL': '#007bff',
+                  'PRIVADA': '#28a745',
+                  'CONVENIO': '#ffc107',
+                  'default': '#6c757d'
+              }
+          }
+          // Aquí añadirás las configuraciones para los nuevos gráficos
+      },
+      elementSelectors: {
+          filters: ['#filtro-distrito', '#filtro-dependencia', '#filtro-subsistema', '#filtro-nivel', '#filtro-turno'],
+          infoModal: '#infoModal',
+          cards: {
+              total: '#stat-total-establecimientos',
+              max: '#stat-distrito-max'
+          }
+      },
+      fieldMappings: {
+          iconField: 'dependencia',
+          'modal-nombre': 'nombre_unidad',
+          'modal-red': 'dependencia',
+          'modal-subsector': 'tipo',
+          'modal-direccion': 'direccion',
+          'modal-telefono': 'telefono_fijo',
+      }
+  };
+</script>
+
+<!-- Carga del orquestador de JavaScript para educación -->
+<script type="module" src="{% static 'js/educacion/dashboard.js' %}"></script>
+{% endblock %}
+
+
+#### educacion/components/_filtros_educacion.html ####
+
+<!-- templates/educacion/components/_filtros_educacion.html -->
+
+<div class="row">
+    <!-- Filtro 1: Distrito -->
+    <div class="col-lg col-md-4 mb-2">
+        <div class="form-group mb-0">
+            <div class="row no-gutters align-items-center">
+                <div class="col">
+                    <select id="filtro-distrito" class="selectpicker" data-width="100%" multiple title="Distrito">
+                        {% for distrito in lista_distritos %}
+                        <option value="{{ distrito }}">Distrito {{ distrito }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-danger clear-selection-btn" data-target="#filtro-distrito" title="Limpiar selección">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover" data-placement="top" title="Filtro por Distrito" data-content="Seleccione uno o más distritos para filtrar los resultados.">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtro 2: Nivel -->
+    <div class="col-lg col-md-4 mb-2">
+        <div class="form-group mb-0">
+            <div class="row no-gutters align-items-center">
+                <div class="col">
+                    <select id="filtro-nivel" class="selectpicker" data-width="100%" multiple title="Nivel Educativo">
+                        {% for nivel in lista_niveles %}
+                        <option value="{{ nivel }}">{{ nivel }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-danger clear-selection-btn" data-target="#filtro-nivel" title="Limpiar selección">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover" data-placement="top" title="Filtro por Nivel" data-content="Seleccione el nivel educativo de las unidades.">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtro 3: Turno -->
+    <div class="col-lg col-md-4 mb-2">
+        <div class="form-group mb-0">
+            <div class="row no-gutters align-items-center">
+                <div class="col">
+                    <select id="filtro-turno" class="selectpicker" data-width="100%" multiple title="Turno">
+                        {% for turno in lista_turnos %}
+                        <option value="{{ turno }}">{{ turno }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-danger clear-selection-btn" data-target="#filtro-turno" title="Limpiar selección">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover" data-placement="top" title="Filtro por Turno" data-content="Filtre por el turno de funcionamiento de las unidades.">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtro 4: Subsistema -->
+    <div class="col-lg col-md-6 mb-2">
+        <div class="form-group mb-0">
+            <div class="row no-gutters align-items-center">
+                <div class="col">
+                    <select id="filtro-subsistema" class="selectpicker" data-width="100%" multiple title="Subsistema">
+                        {% for subsistema in lista_subsistemas %}
+                        <option value="{{ subsistema }}">{{ subsistema }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-danger clear-selection-btn" data-target="#filtro-subsistema" title="Limpiar selección">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover" data-placement="top" title="Filtro por Subsistema" data-content="Seleccione el subsistema educativo (Regular, Alternativa, Especial).">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtro 5: Dependencia -->
+    <div class="col-lg col-md-6 mb-2">
+        <div class="form-group mb-0">
+            <div class="row no-gutters align-items-center">
+                <div class="col">
+                    <select id="filtro-dependencia" class="selectpicker" data-width="100%" multiple title="Dependencia">
+                        {% for dependencia in lista_dependencias %}
+                        <option value="{{ dependencia }}">{{ dependencia }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-danger clear-selection-btn" data-target="#filtro-dependencia" title="Limpiar selección">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover" data-placement="top" title="Filtro por Dependencia" data-content="Filtre por el tipo de administración (Fiscal, Privada, Convenio).">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+#### general/dashboard.html ####
+
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card card-primary card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-map-marked-alt"></i>
+                        Mapa de El Alto por Distritos
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div id="map-container" style="width: 100%; height: 600px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <!-- Card de Filtro -->
+            <div class="card card-info">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-filter"></i>
+                        Filtrar por Distrito
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="district-selector">Selecciona un Distrito:</label>
+                        <select id="district-selector" class="form-control">
+                            <option value="all">Ver todo el mapa</option>
+                            <option value="1">Distrito 1</option>
+                            <option value="2">Distrito 2</option>
+                            <option value="3">Distrito 3</option>
+                            <option value="4">Distrito 4</option>
+                            <option value="5">Distrito 5</option>
+                            <option value="6">Distrito 6</option>
+                            <option value="7">Distrito 7</option>
+                            <option value="8">Distrito 8</option>
+                            <option value="9">Distrito 9</option>
+                            <option value="10">Distrito 10</option>
+                            <option value="11">Distrito 11</option>
+                            <option value="12">Distrito 12</option>
+                            <option value="13">Distrito 13</option>
+                            <option value="14">Distrito 14</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card de Población -->
+            <div class="card card-success mt-3">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-users"></i>
+                        Población
+                    </h3>
+                </div>
+                <div class="card-body text-center">
+                    <div id="population-chart" style="height: 150px;"></div>
+                </div>
+            </div>
+
+            <!-- Card de Área -->
+            <div class="card card-warning mt-3">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-area"></i>
+                        Área (km²)
+                    </h3>
+                </div>
+                <div class="card-body text-center">
+                    <div id="area-chart" style="height: 150px;"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var myChart = echarts.init(document.getElementById('map-container'));
+            var geoJsonData; // Variable para almacenar los datos del GeoJSON
+
+            var populationChart = echarts.init(document.getElementById('population-chart'));
+            var areaChart = echarts.init(document.getElementById('area-chart'));
+            let currentSelectedDistrict = null;
+            // Función base para mostrar valores
+            function renderStatChart(chart, label, value, color) {
+                chart.setOption({
+                    title: {
+                        text: label,
+                        left: 'center',
+                        top: 'bottom',
+                        textStyle: {
+                            fontSize: 14,
+                            fontWeight: 'bold'
+                        }
+                    },
+                    series: [{
+                        type: 'gauge',
+                        startAngle: 180,
+                        endAngle: 0,
+                        radius: '100%',
+                        center: ['50%', '65%'],
+                        min: 0,
+                        max: value,
+                        progress: {
+                            show: true,
+                            width: 18,
+                            itemStyle: {
+                                color: color
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                width: 18
+                            }
+                        },
+                        pointer: {
+                            show: false
+                        },
+                        axisTick: { show: false },
+                        splitLine: { show: false },
+                        axisLabel: { show: false },
+                        title: {
+                            offsetCenter: [0, '-20%'],
+                            fontSize: 14
+                        },
+                        detail: {
+                            valueAnimation: true,
+                            formatter: value.toLocaleString(),
+                            color: color,
+                            fontSize: 20,
+                            offsetCenter: [0, '0%']
+                        },
+                        data: [{ value: value }]
+                    }]
+                });
+            }
+
+            // Cargar el archivo GeoJSON
+            // NOTA: Asegúrate de que esta ruta sea correcta para tu nuevo archivo.
+            fetch('{% static 'geojson/geo_distritos.geojson' %}')
+                .then(response => response.json())
+                .then(geoJson => {
+                    geoJsonData = geoJson;
+                    echarts.registerMap('ElAlto', geoJsonData, {});
+
+                    var option = {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: function(params) {
+                                return params.name ? `<strong>${params.name}</strong>` : 'N/A';
+                            }
+                        },
+                        visualMap: {
+                            type: 'piecewise',
+                            show: true,
+                            left: 'left',
+                            top: 'bottom',
+                            pieces: [
+                                { value: 0, label: 'Rural', color: '#4CAF50' },
+                                { value: 1, label: 'Urbano', color: '#795548' }
+                            ],
+                            
+                        },
+                        series: [
+                            {
+                                type: 'map',
+                                map: 'ElAlto',
+                                roam: true,
+                                selectedMode: 'single',
+                                zoom: 1.25, // Zoom inicial
+                                
+                                itemStyle: {
+                                    borderColor: '#fff',
+                                    borderWidth: 1.5
+                                },
+                                emphasis: {
+                                    label: { show: true, color: '#fff' },
+                                    itemStyle: {
+                                        areaColor: '#f7d794'
+                                    }
+                                },
+                                data: geoJsonData.features.map(function(feature) {
+                                    const distritoId = feature.properties.distrito;
+                                    const tipo = feature.properties.tipo;
+                                    const nombre = `${distritoId}`;
+                                    const tipoValue = tipo === 'rural' ? 0 : 1;
+
+                                    // Añadimos "name" al feature para registrar el mapa si fuera necesario
+                                    feature.properties.name = nombre;
+
+                                    return {
+                                        name: nombre,
+                                        id: distritoId,
+                                        value: tipoValue, // Usado por visualMap
+                                        center: feature.properties.centroid
+                                    };
+                                })
+                            }
+                        ]
+                    };
+
+                    
+                    // Establecer las opciones del mapa
+                    myChart.setOption(option);
+
+                    // Evento al hacer clic en un distrito en el mapa
+                    myChart.on('click', function(params) {
+                        if (params.data && params.data.id) {
+                            // Actualiza el selector
+                            $('#district-selector').val(params.data.id).change();
+                        }
+                    });
+
+                    // Evento al cambiar la selección en el dropdown
+                    $('#district-selector').change(function() {
+                        var selectedId = $(this).val();
+
+                        if (selectedId !== 'all') {
+                            
+                            var selectedData = myChart.getOption().series[0].data.find(
+                                item => item.id == selectedId
+                            );
+
+                            if (selectedData && selectedData.center) {
+                                currentSelectedDistrict = selectedData.name;
+                                // Zoom + centrado
+                                myChart.setOption({
+                                    series: [{
+                                        type: 'map',
+                                        map: 'ElAlto',
+                                        center: selectedData.center,
+                                        zoom: 5,
+                                        selectedMode: 'single',
+                                        selected: {
+                                            [selectedData.name]: true
+                                        }
+                                    }]
+                                });
+
+                                myChart.dispatchAction({
+                                    type: 'mapSelect',
+                                    name: selectedData.name
+                                });
+
+                                // Encuentra el feature original en geoJsonData
+                                const feature = geoJsonData.features.find(
+                                    f => f.properties.distrito == selectedData.id
+                                );
+
+                                if (feature) {
+                                    const poblacion = feature.properties.poblacion || 0;
+                                    const area = feature.properties.area_km2 || 0;
+
+                                    renderStatChart(populationChart, 'Población', poblacion, '#28a745');
+                                    renderStatChart(areaChart, 'Área (km²)', area, '#ffc107');
+                                }
+                            }
+                        } else {
+                            // 🔁 Desmarcar el anterior si existe
+                            if (currentSelectedDistrict) {
+                                myChart.dispatchAction({
+                                    type: 'mapUnSelect',
+                                    name: currentSelectedDistrict
+                                });
+                                currentSelectedDistrict = null; // Limpiar la variable
+                            }
+
+                            // 🔄 Restablecer la vista
+                            myChart.setOption({
+                                series: [{
+                                    type: 'map',
+                                    map: 'ElAlto',
+                                    zoom: 1.25,
+                                    center: null,
+                                    selectedMode: 'single',
+                                    selected: {}
+                                }]
+                            });
+
+                            // Reiniciar valores
+                            renderStatChart(populationChart, 'Población', 0, '#28a745');
+                            renderStatChart(areaChart, 'Área (km²)', 0, '#ffc107');
+                        }
+
+                        // Actualizar el distrito seleccionado
+                        currentSelectedDistrict = selectedId !== 'all' ? selectedId : null;
+
+                    });
+
+                    // Responsive
+                    window.addEventListener('resize', function() { myChart.resize(); });
+                    $('body').on('click', '[data-widget="pushmenu"]', function () {
+                        setTimeout(function() { myChart.resize(); }, 300);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error al cargar el GeoJSON:', error);
+                });
+                
+        });
+    </script>
+{% endblock %}
+
+#### general/infogeneral.html ####
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard General{% endblock %}
+
+{% block page_title %}{{ dashboard_title }}{% endblock %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Inicio</a></li>
+        <li class="breadcrumb-item active">Informacion General</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-6 col-md-12">
+            <div class="card card-primary card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">Gráfico de Pacientes por Hospital</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {# Aquí se inyecta el gráfico de Plotly para pacientes #}
+
+                    // {{ plot_pacientes|safe }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-md-12">
+            <div class="card card-info card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">Gráfico de Camas Disponibles por Tipo</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {# Aquí se inyecta el gráfico de Plotly para camas #}
+ 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-secondary card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">Datos Detallados de Hospitales</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {# Aquí se inyecta la tabla de datos #}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{# No necesitamos extra_js o extra_head en este ejemplo porque Plotly se carga en base.html #}
+{# y el JS para los gráficos está contenido en el div HTML generado por Plotly. #}
+
+#### hospitales/dashboard.html ####
+
+{% extends 'base.html' %} 
+{% load static %} 
+{% block title %}Mapa de El Alto{% endblock %} 
+{% block extra_head %}
+<!-- CDN CSS para Bootstrap Select -->
+<link
+  rel="stylesheet"
+  href="{% static 'css_libs/bootstrap-select.min.css' %}"
+/>
+<!-- Leaflet.markercluster CSS y JS -->
+<link
+  rel="stylesheet"
+  href="{% static 'css_libs/MarkerCluster.css' %}"
+/>
+<link
+  rel="stylesheet"
+  href="{% static 'css_libs/MarkerCluster.Default.css' %}"
+/>
+<script src="{% static 'js_libs\leaflet\leaflet.markercluster.js' %}"></script>
+<!-- CDN para D3.js (necesario para el gráfico de burbujas) -->
+<script src="{% static 'js_libs\d3-hierarchy.min.js' %}"></script>
+
+<!-- Estilos del dashboard -->
+ <!-- <link rel="stylesheet" href="{% static 'css/hospitales/dashboard.css' %}" /> -->
+
+{% endblock extra_head %} 
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <!-- Filtros del Dashboard -->
+    {% include 'hospitales/components/_filtros_dashboard.html' %}
+    <div class="row">
+      <!-- Card para el mapa, tamaño 7 -->
+      <div class="col-md-7">
+        <div class="card">
+          <div class="card-body p-0">
+            <div id="map" style="width: 100%; height: 550px"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Card lateral, tamaño 5, CON PESTAÑAS PARA CADA GRÁFICO -->
+      <div class="col-md-5">
+        <div class="card">
+          <div class="card-body p-0">
+            <!-- Pestañas con nombres descriptivos -->
+            <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
+              <li class="nav-item">
+                <a
+                  class="nav-link active"
+                  id="distrito-tab"
+                  data-toggle="tab"
+                  href="#distrito"
+                  role="tab"
+                  aria-controls="distrito"
+                  aria-selected="true"
+                  >Por Distrito</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  id="nivel-tab"
+                  data-toggle="tab"
+                  href="#nivel"
+                  role="tab"
+                  aria-controls="nivel"
+                  aria-selected="false"
+                  >Por Nivel</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  id="subsector-tab"
+                  data-toggle="tab"
+                  href="#subsector"
+                  role="tab"
+                  aria-controls="subsector"
+                  aria-selected="false"
+                  >Por Subsector</a
+                >
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" id="comp-tab" data-toggle="tab" href="#comparativa" role="tab"
+                      aria-controls="comparativa" aria-selected="false">Comparativa</a>
+              </li>
+            </ul>
+            <!-- Contenido de las pestañas -->
+            <div class="tab-content p-3" id="myTabContent">
+              <!-- Pestaña 1: Gráfico de Barras por Distrito -->
+              <div class="tab-pane fade show active" id="distrito" role="tabpanel" aria-labelledby="distrito-tab">
+                    <div id="grafico-distritos" style="width: 100%; height: 400px;"></div>
+
+                    <!-- ===== INICIO DE LAS TARJETAS (CON MARGEN REDUCIDO) ===== -->
+                    <div class="row mt-2">
+                        <!-- Tarjeta 1: Establecimientos Totales -->
+                        <div class="col-lg-6 mb-3">
+                            <div class="stat-card h-100">
+                                <div class="icon"><i class="fa fa-hospital-o"></i></div>
+                                <div class="info">
+                                    <div class="stat-number" id="stat-total-establecimientos" data-target="{{ total_establecimientos_inicial }}">0</div>
+                                    <p class="stat-label">Establecimientos Totales</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tarjeta 2: Distrito con más establecimientos -->
+                        <div class="col-lg-6 mb-3">
+                            <div class="stat-card h-100">
+                                <div class="icon"><i class="fa fa-trophy"></i></div>
+                                <div class="info">
+                                    <div id="stat-distrito-max" class="stat-number">{{ distrito_max_inicial }}</div>
+                                    <p class="stat-label">Con más establecimientos</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ===== FIN DE LAS TARJETAS ===== -->
+                </div>
+
+
+              <!-- Pestaña 2: Gráfico de Burbujas por Nivel -->
+                <div class="tab-pane fade" id="nivel" role="tabpanel" aria-labelledby="nivel-tab">
+                    <!-- El contenedor del gráfico ahora se llama 'grafico-burbujas-nivel' -->
+                    <div id="grafico-burbujas-nivel" style="width: 100%; height: 400px;"></div>
+                    <!-- Contenedor para la leyenda dinámica -->
+                    <div id="leyenda-burbujas-nivel" class="legend-container"></div>
+                </div>
+
+              <!-- Pestaña 3: Gráfico de Tarta por Subsector -->
+              <div
+                class="tab-pane fade"
+                id="subsector"
+                role="tabpanel"
+                aria-labelledby="subsector-tab"
+              >
+                <div
+                  id="grafico-subsector"
+                  style="width: 100%; height: 520px"
+                ></div>
+              </div>
+              <!-- Pestaña 4: Gráfico Comparativo Nivel vs Subsector -->
+              <div class="tab-pane fade" id="comparativa" role="tabpanel" aria-labelledby="comp-tab">
+                  <div id="grafico-comparativa" style="width: 100%; height: 520px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Modal para mostrar información del establecimiento -->
+{% include 'hospitales/components/_modal_info_establecimiento.html' %} 
+{% if not instituciones %}
+<div class="alert alert-warning" role="alert">
+  No se encontraron instituciones para mostrar en el mapa.
+</div>
+{% endif %} 
+{% if not distritos_geojson %}
+<div class="alert alert-warning" role="alert">
+  No se encontraron distritos para mostrar en el mapa.
+</div>
+{% endif %} 
+
+<!-- Modal para Filtros de Distrito y Nivel -->
+{% include 'hospitales/components/_modal_analisis_nivel.html' %}
+<!-- Modal para Filtros de Distrito y Subsector -->
+{% include 'hospitales/components/_modal_analisis_subsector.html' %}
+{% endblock content %} 
+
+{% block extra_js %}
+<!-- CDN JS para Bootstrap Select -->
+<script src="{% static 'js_libs\bootstrap-select.min.js' %}"></script>
+
+<!-- dashboard.html (dentro de la etiqueta <script> al final del archivo) -->
+
+// hospitales/dashboard.html
+
+<script>
+  // ==================================================================
+  //  PUENTE DE DATOS: Django -> JavaScript
+  // ==================================================================
+  window.dashboardConfig = {
+      data: {
+          instituciones: {{ instituciones|safe }},
+          distritosGeojson: {{ distritos_geojson|safe }},
+          listaDistritosCompleta: {{ lista_distritos_completa|safe }}
+      },
+      apiUrls: {
+          filtrarInstituciones: "{% url 'hospitales:filtrar_instituciones_api' %}",
+          graficoDistritos: "{% url 'hospitales:generar_grafico_api' %}",
+          graficoNivel: "{% url 'hospitales:generar_grafico_nivel_api' %}",
+          graficoSubsector: "{% url 'hospitales:generar_grafico_subsector_api' %}",
+          graficoComparativa: "{% url 'hospitales:generar_grafico_niveles_subsectores_api' %}",
+          generarDatosCards: "{% url 'hospitales:generar_datos_cards_api' %}",
+          analisisCruzado: "{% url 'hospitales:generar_analisis_cruzado_api' %}"
+      },
+      staticUrls: {
+          markerShadow: '{% static "img/leaflet/marker-shadow.png" %}',
+          iconMappings: {
+              '1ER NIVEL': '{% static "img/leaflet/salud/hospital1.png" %}',
+              '2DO NIVEL': '{% static "img/leaflet/salud/hospital2.png" %}',
+              '3ER NIVEL': '{% static "img/leaflet/salud/hospital3.png" %}',
+              'BANCO DE SANGRE': '{% static "img/leaflet/salud/gota.png" %}',
+              'T. NUCLEAR': '{% static "img/leaflet/salud/nuclear.png" %}',
+              'default': '{% static "img/leaflet/marker-icon.png" %}'
+          }
+      },
+      // ✅ CORRECCIÓN: Añadimos la configuración de la leyenda que ahora es necesaria.
+      legendSettings: {
+          title: 'Centros de Salud'
+      },
+      chartSettings: {
+          distritos: { title: 'Centros por Distrito' },
+          nivel: {
+              title: 'Distribución por Nivel',
+              colorMappings: {
+                  '1ER NIVEL': '#69b3a2', '2DO NIVEL': '#e08e6d', '3ER NIVEL': '#6d8ee0',
+                  'BANCO DE SANGRE': '#ffc107', 'T. NUCLEAR': '#dc3545', 'default': '#cccccc'
+              }
+          },
+          subsector: { title: 'Distribución por Subsector' },
+          comparativa: { title: 'Niveles por Subsector' }
+      },
+      elementSelectors: {
+          filters: ['#dropdown1', '#dropdown2', '#dropdown3'],
+          infoModal: '#infoModal',
+          analysisModals: {
+              nivel: '#modalAnalisisNivel',
+              subsector: '#modalAnalisisSubsector'
+          },
+          cards: {
+              total: '#stat-total-establecimientos',
+              max: '#stat-distrito-max'
+          },
+          analysisStatPrefixes: {
+              nivel: 'stat-nivel',
+              subsector: 'stat-subsector'
+          }
+      },
+      fieldMappings: {
+          iconField: 'nivel',
+          'modal-nombre': 'nombre_establecimiento',
+          'modal-red': 'red_establecimiento',
+          'modal-subsector': 'subsector',
+          'modal-tipo-nivel': data => `${data.tipo || ''} - ${data.nivel || ''}`,
+          'modal-direccion': 'direccion',
+          'modal-telefono': 'telefono_fijo',
+          'modal-whatsapp': 'whatsapp',
+          'modal-lunes': 'lunes',
+          'modal-martes': 'martes',
+          'modal-miercoles': 'miercoles',
+          'modal-jueves': 'jueves',
+          'modal-viernes': 'viernes',
+          'modal-sabado': 'sabado',
+          'modal-domingo': 'domingo'
+      }
+  };
+</script>
+
+
+<!-- ✅ Carga de nuestro archivo de lógica principal COMO MÓDULO -->
+<script type="module" src="{% static 'js/hospitales/dashboard.js' %}"></script>
+
+{% endblock extra_js %}
+
+
+#### hospitales/components/_filtros_dashboard.html ####
+
+<div class="row">
+            <!-- Dropdown 1 (Distrito)-->
+            <div class="col-md-3">
+                <div class="form-group mb-2">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <select id="dropdown1" class="selectpicker" data-width="100%" multiple title="Distrito">
+            
+                                <!-- Bucle de Django para generar las opciones dinámicamente -->
+                                {% for distrito in lista_distritos_con_centros %}
+                                <option value="{{ distrito }}">Distrito {{ distrito }}</option>
+                                {% endfor %}
+            
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-danger clear-selection-btn" data-target="#dropdown1">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover"
+                                    data-placement="top" title="Filtro por Distrito"
+                                    data-content="Seleccione uno o más distritos para filtrar los resultados en el mapa.">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Dropdown 2 (Nivel de Centro) -->
+            <div class="col-md-3">
+                <div class="form-group mb-2">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <select id="dropdown2" class="selectpicker" data-width="100%" multiple title="Nivel de Centro">
+                                <!-- Los 'value' deben coincidir con el CSV -->
+                                <option value="1ER NIVEL">1er Nivel</option>
+                                <option value="2DO NIVEL">2do Nivel</option>
+                                <option value="3ER NIVEL">3er Nivel</option>
+                                <option value="BANCO DE SANGRE">Banco de Sangre</option>
+                                <option value="T. NUCLEAR">T. Nuclear</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-danger clear-selection-btn" data-target="#dropdown2"><i
+                                        class="fas fa-trash-alt"></i></button>
+                                <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover"
+                                    data-placement="top" title="Filtro por Nivel"
+                                    data-content="Seleccione el nivel de los centros de salud que desea visualizar."><i
+                                        class="fas fa-info-circle"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Dropdown 3 (Subsector) -->
+            <div class="col-md-3">
+                <div class="form-group mb-2">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <select id="dropdown3" class="selectpicker" data-width="100%" multiple title="Subsector">
+                                <!-- Los 'value' deben coincidir con el CSV -->
+                                <option value="PÚBLICO">Público</option>
+                                <option value="SEGURIDAD SOCIAL (CAJAS)">Seguridad Social</option>
+                                <option value="ORGANISMOS PRIVADOS">Privado</option>
+                                <option value="IGLESIA">Iglesia</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-danger clear-selection-btn" data-target="#dropdown3">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover"
+                                    data-placement="top" title="Filtro por Subsector"
+                                    data-content="Filtre por el tipo de administración del centro de salud.">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Botones de Análisis Cruzado -->
+            <div class="col-md-3">
+            <div class="form-group mb-2">
+                <!-- Usamos d-flex para que los botones ocupen todo el espacio -->
+                <div class="btn-group d-flex" role="group">
+                    <!-- Botón 1: Distritos vs Niveles -->
+                    <button class="btn btn-info btn-analisis-cruzado flex-fill" 
+                            data-toggle="modal" data-target="#modalAnalisisNivel"
+                            title="Ver análisis de Distritos vs. Niveles">
+                        <i class="fas fa-chart-bar"></i> D vs Niveles
+                    </button>
+                    <!-- Botón 2: Distritos vs Subsectores -->
+                    <button class="btn btn-info btn-analisis-cruzado flex-fill"
+                            data-toggle="modal" data-target="#modalAnalisisSubsector"
+                            title="Ver análisis de Distritos vs. Subsectores">
+                        <i class="fas fa-chart-bar"></i> D vs Subsectores
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        </div>
+        </div>
+
+#### hospitales/components/_modal_analisis_nivel.html ####
+
+<!-- Modal para Análisis: Distritos vs. Nivel -->
+<div class="modal fade" id="modalAnalisisNivel" tabindex="-1" aria-labelledby="modalNivelTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="custom-modal-card">
+                <button type="button" class="custom-close-button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h3 class="dashboard-section-title" id="modalNivelTitle"><i class="fa fa-th"></i>Análisis: Distritos vs. Niveles</h3>
+                        <div id="grafico-analisis-nivel" style="width: 100%; height: 550px;"></div>
+                    </div>
+                    <div class="col-lg-4 stats-column">
+                        <h3 class="dashboard-section-title"><i class="fa fa-info-circle"></i>Datos Destacados</h3>
+                        <div class="stat-card">
+                            <div class="icon"><i class="fa fa-hospital-o"></i></div>
+                            <div class="info">
+                                <div id="stat-nivel-total" class="stat-number">0</div>
+                                <p class="stat-label">Establecimientos Totales</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon"><i class="fa fa-map-o"></i></div>
+                            <div class="info">
+                                <div id="stat-nivel-distritos" class="stat-number">0</div>
+                                <p class="stat-label">Distritos Analizados</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon"><i class="fa fa-trophy"></i></div>
+                            <div class="info">
+                                <div id="stat-nivel-distrito-max" class="stat-number">N/A</div>
+                                <p class="stat-label">Distrito con más centros</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon"><i class="fa fa-star"></i></div>
+                            <div class="info">
+                                <div id="stat-nivel-tipo-comun" class="stat-number">N/A</div>
+                                <p class="stat-label">Nivel más común</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+#### hospitales/components/_modal_analisis_subsector.html ####
+
+<!-- Modal para Análisis: Distritos vs. Subsector -->
+<div class="modal fade" id="modalAnalisisSubsector" tabindex="-1" aria-labelledby="modalSubsectorTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="custom-modal-card">
+                <button type="button" class="custom-close-button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h3 class="dashboard-section-title" id="modalSubsectorTitle"><i class="fa fa-th"></i>Análisis: Distritos vs. Subsectores</h3>
+                        <div id="grafico-analisis-subsector" style="width: 100%; height: 550px;"></div>
+                    </div>
+                    <div class="col-lg-4 stats-column">
+                        <h3 class="dashboard-section-title"><i class="fa fa-info-circle"></i>Datos Destacados</h3>
+                        <div class="stat-card">
+                            <div class="icon"><i class="fa fa-hospital-o"></i></div>
+                            <div class="info">
+                                <div id="stat-subsector-total" class="stat-number">0</div>
+                                <p class="stat-label">Establecimientos Totales</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon"><i class="fa fa-map-o"></i></div>
+                            <div class="info">
+                                <div id="stat-subsector-distritos" class="stat-number">0</div>
+                                <p class="stat-label">Distritos Analizados</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon"><i class="fa fa-trophy"></i></div>
+                            <div class="info">
+                                <div id="stat-subsector-distrito-max" class="stat-number">N/A</div>
+                                <p class="stat-label">Distrito con más centros</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon"><i class="fa fa-star"></i></div>
+                            <div class="info">
+                                <div id="stat-subsector-tipo-comun" class="stat-number">N/A</div>
+                                <p class="stat-label">Subsector más común</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+#### hospitales/components/_modal_info_establecimiento.html ####
+
+<!-- INICIO DEL COMPONENTE MODAL                      -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="custom-modal-card">
+                <button type="button" class="custom-close-button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+
+                <div class="row">
+                    <div class="col-md-7 main-info-column">
+                        <div class="modal-icon">
+                            <i class="fa fa-hospital-o"></i>
+                        </div>
+                        <!-- ID para el título -->
+                        <h2 class="modal-title-custom" id="modal-nombre"></h2>
+
+                        <!-- ID para la red -->
+                        <p class="modal-secondary-info">
+                            <span id="modal-red"></span>
+                            <i class="fa fa-info-circle info-tooltip-icon" data-toggle="tooltip" data-placement="top"
+                                title="Indica la red de salud a la que pertenece el establecimiento."></i>
+                        </p>
+
+                        <!-- ID para el subsector -->
+                        <p class="modal-subsector-highlight">
+                            <span id="modal-subsector"></span>
+                            <i class="fa fa-info-circle info-tooltip-icon" data-toggle="tooltip" data-placement="top"
+                                title="Define si el centro es público, privado, de seguridad social, etc."></i>
+                        </p>
+
+                        <!-- ID para tipo y nivel -->
+                        <p class="modal-subtitle">
+                            <span id="modal-tipo-nivel"></span>
+                            <i class="fa fa-info-circle info-tooltip-icon" data-toggle="tooltip" data-placement="top"
+                                title="Clasificación del centro según su complejidad y tipo de atención."></i>
+                        </p>
+
+                        <div class="info-section">
+                            <!-- ID para la dirección -->
+                            <div class="info-item">
+                                <i class="fa fa-map-marker"></i>
+                                <span id="modal-direccion"></span>
+                            </div>
+                            <!-- ID para el teléfono fijo -->
+                            <div class="info-item">
+                                <i class="fa fa-phone"></i>
+                                <span id="modal-telefono"></span>
+                            </div>
+                            <!-- ID para WhatsApp -->
+                            <div class="info-item">
+                                <i class="fa fa-whatsapp"></i>
+                                <span id="modal-whatsapp"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5 horarios-column">
+                        <div class="horarios-section mt-4 mt-md-0">
+                            <h3 class="section-title">
+                                <i class="fa fa-clock-o"></i>Horarios de Atención
+                            </h3>
+                            <!-- IDs para los horarios de cada día -->
+                            <div class="horario-row">
+                                <span class="horario-day">Lunes</span>
+                                <span class="horario-time" id="modal-lunes"></span>
+                            </div>
+                            <div class="horario-row">
+                                <span class="horario-day">Martes</span>
+                                <span class="horario-time" id="modal-martes"></span>
+                            </div>
+                            <div class="horario-row">
+                                <span class="horario-day">Miércoles</span>
+                                <span class="horario-time" id="modal-miercoles"></span>
+                            </div>
+                            <div class="horario-row">
+                                <span class="horario-day">Jueves</span>
+                                <span class="horario-time" id="modal-jueves"></span>
+                            </div>
+                            <div class="horario-row">
+                                <span class="horario-day">Viernes</span>
+                                <span class="horario-time" id="modal-viernes"></span>
+                            </div>
+                            <div class="horario-row">
+                                <span class="horario-day">Sábado</span>
+                                <span class="horario-time" id="modal-sabado"></span>
+                            </div>
+                            <div class="horario-row">
+                                <span class="horario-day">Domingo</span>
+                                <span class="horario-time" id="modal-domingo"></span>
+                            </div>
+                        </div>
+                        <!-- Puedes usar este botón en el futuro si lo necesitas -->
+                        <!-- <button type="button" class="btn btn-custom-action">Más Información</button> -->
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FIN DEL COMPONENTE MODAL -->
+
+#### partials/_footer.html ####
+
+<footer class="main-footer">
+  <div class="float-right d-none d-sm-block"><b>Version</b> 1.0.0</div>
+  <strong
+    >Copyright &copy; 2025
+    <a href="">Centros de Ayuda</a>.</strong
+  >
+  Todos los derechos reservados.
+</footer>
+
+
+#### partials/_navbar.html ####
+
+{% load static %}
+<!-- Navbar -->
+  <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
+    <div class="container">
+      <a href="{% url 'general:dashboard' %}" class="navbar-brand p-0">
+        <img
+          src="{% static 'img/Logo-gamea.png' %}"
+          alt="Logo Grande"
+          style="height: 35px; width: auto;"
+        >
+      </a>
+
+
+      <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse order-3" id="navbarCollapse">
+        <!-- Left navbar links -->
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'general:dashboard' %}" class="nav-link">General</a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'educacion:educacion_dashboard' %}" class="nav-link">Unidades Educativas</a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'hospitales:dashboard' %}" class="nav-link">Centros de Salud</a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">Colegios</a>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Dropdown</a>
+            <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
+              <li><a href="#" class="dropdown-item">Some action </a></li>
+              <li class="dropdown-divider"></li>
+              <li><a href="#" class="dropdown-item">Some other action</a></li>
+
+              
+              <!-- Level two dropdown-->
+              <li class="dropdown-submenu dropdown-hover">
+                <a id="dropdownSubMenu2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">Hover for action</a>
+                <ul aria-labelledby="dropdownSubMenu2" class="dropdown-menu border-0 shadow">
+                  <li>
+                    <a tabindex="-1" href="#" class="dropdown-item">level 2</a>
+                  </li>
+
+                  <li><a href="#" class="dropdown-item">level 2</a></li>
+                  <li><a href="#" class="dropdown-item">level 2</a></li>
+                </ul>
+              </li>
+              <!-- End Level two -->
+            </ul>
+          </li>
+        </ul>
+
+        
+      </div>
+
+      <!-- Right navbar links -->
+      <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
+        <!-- Expandir Botón -->
+        <li class="nav-item">
+          <a class="nav-link" data-widget="fullscreen" href="#" role="button" title="Pantalla completa">
+            <i class="fas fa-expand-arrows-alt"></i>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="navbar-brand p-0">
+            <img
+              src="{% static 'img/gregoria.png' %}"
+              alt="Logo Grande"
+              style="height: 35px; width: auto;"
+            >
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="navbar-brand p-0">
+            <img
+              src="{% static 'img/oit.png' %}"
+              alt="Logo Grande"
+              style="height: 35px; width: auto;"
+            >
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+<!-- /.navbar -->
+
+
+#### partials/_sidebar.html ####
+
+{% load static %}
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar elevation-4">
+  <!-- Brand Logo -->
+  <a href="" class="brand-link">
+    <!-- Logo grande/completo - visible siempre -->
+    <img
+      src="{% static 'img/Logo-gamea.png' %}"
+      alt="Logo Grande"
+      class="brand-image-xl brand-image-no-border"
+      style="width: 100%; height: auto;"
+    >
+  </a>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    
+    <!-- Sidebar Menu -->
+    <nav class="mt-2">
+      <ul
+        class="nav nav-pills nav-sidebar flex-column"
+        data-widget="treeview"
+        role="menu"
+        data-accordion="false"
+      >
+        <!-- Add icons to the links using the .nav-icon class
+               with font-awesome or any other icon font library -->
+        
+        <li class="nav-item">
+          <a href="{% url 'general:dashboard' %}" class="nav-link">
+            <i class="nav-icon fas fa-th"></i>
+            <p>
+              General
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'hospitales:dashboard' %}" class="nav-link">
+            <i class="nav-icon fas fa-th"></i>
+            <p>
+              Hospitales
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-th"></i>
+            <p>
+              Colegios
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-th"></i>
+            <p>
+              mapa prueba
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-chart-pie"></i>
+            <p>
+              Graficos
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+               <a href="#" class="nav-link">
+                <i class="fas fa-school nav-icon"></i>
+                <p>Unidades Educativas</p>
+              </a>
+            </li>
+            <li class="nav-item">
+               <a href="{% url 'hospitales:dashboard' %}" class="nav-link {% if active_menu == 'hospitales' %}active{% endif %}">
+                <i class="fas fa-hospital nav-icon"></i>
+                <p>Hospitales</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'iglesias:dashboard' %}" class="nav-link {% if active_menu == 'iglesias' %}active{% endif %}">
+                <i class="nav-icon fas fa-church"></i>
+                <p>Iglesias y Centros de Ayuda</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="" class="">
+                <i class="fas fa-futbol nav-icon"></i>
+                <p>Canchas</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-edit"></i>
+            <p>
+              Formularios
+              <i class="fas fa-angle-left right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="../forms/general.html" class="nav-link">
+                <i class="nav-icon far fa-circle"></i>
+                <p>Nuevo Centro</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-table"></i>
+            <p>
+              Tablas
+              <i class="fas fa-angle-left right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="../tables/jsgrid.html" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Tabla de Centros</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon far fa-circle text-warning"></i>
+            <p>Warning</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon far fa-circle text-info"></i>
+            <p>Informational</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-table text-info"></i>
+            <p>Table</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-table text-info"></i>
+            <p>Table</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-table text-info"></i>
+            <p>Table</p>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <!-- /.sidebar-menu -->
+  </div>
+  <!-- /.sidebar -->
+</aside>
+
+

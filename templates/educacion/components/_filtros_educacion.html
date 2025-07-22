@@ -1,0 +1,128 @@
+<!-- templates/educacion/components/_filtros_educacion.html -->
+
+<div class="row">
+    <!-- Filtro 1: Distrito -->
+    <div class="col-lg col-md-4 mb-2">
+        <div class="form-group mb-0">
+            <div class="row no-gutters align-items-center">
+                <div class="col">
+                    <select id="filtro-distrito" class="selectpicker" data-width="100%" multiple title="Distrito">
+                        {% for distrito in lista_distritos %}
+                        <option value="{{ distrito }}">Distrito {{ distrito }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-danger clear-selection-btn" data-target="#filtro-distrito" title="Limpiar selección">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover" data-placement="top" title="Filtro por Distrito" data-content="Seleccione uno o más distritos para filtrar los resultados.">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtro 2: Nivel -->
+    <div class="col-lg col-md-4 mb-2">
+        <div class="form-group mb-0">
+            <div class="row no-gutters align-items-center">
+                <div class="col">
+                    <select id="filtro-nivel" class="selectpicker" data-width="100%" multiple title="Nivel Educativo">
+                        {% for nivel in lista_niveles %}
+                        <option value="{{ nivel }}">{{ nivel }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-danger clear-selection-btn" data-target="#filtro-nivel" title="Limpiar selección">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover" data-placement="top" title="Filtro por Nivel" data-content="Seleccione el nivel educativo de las unidades.">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtro 3: Turno -->
+    <div class="col-lg col-md-4 mb-2">
+        <div class="form-group mb-0">
+            <div class="row no-gutters align-items-center">
+                <div class="col">
+                    <select id="filtro-turno" class="selectpicker" data-width="100%" multiple title="Turno">
+                        {% for turno in lista_turnos %}
+                        <option value="{{ turno }}">{{ turno }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-danger clear-selection-btn" data-target="#filtro-turno" title="Limpiar selección">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover" data-placement="top" title="Filtro por Turno" data-content="Filtre por el turno de funcionamiento de las unidades.">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtro 4: Subsistema -->
+    <div class="col-lg col-md-6 mb-2">
+        <div class="form-group mb-0">
+            <div class="row no-gutters align-items-center">
+                <div class="col">
+                    <select id="filtro-subsistema" class="selectpicker" data-width="100%" multiple title="Subsistema">
+                        {% for subsistema in lista_subsistemas %}
+                        <option value="{{ subsistema }}">{{ subsistema }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-danger clear-selection-btn" data-target="#filtro-subsistema" title="Limpiar selección">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover" data-placement="top" title="Filtro por Subsistema" data-content="Seleccione el subsistema educativo (Regular, Alternativa, Especial).">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtro 5: Dependencia -->
+    <div class="col-lg col-md-6 mb-2">
+        <div class="form-group mb-0">
+            <div class="row no-gutters align-items-center">
+                <div class="col">
+                    <select id="filtro-dependencia" class="selectpicker" data-width="100%" multiple title="Dependencia">
+                        {% for dependencia in lista_dependencias %}
+                        <option value="{{ dependencia }}">{{ dependencia }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-danger clear-selection-btn" data-target="#filtro-dependencia" title="Limpiar selección">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover" data-placement="top" title="Filtro por Dependencia" data-content="Filtre por el tipo de administración (Fiscal, Privada, Convenio).">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

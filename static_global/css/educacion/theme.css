@@ -1,0 +1,25 @@
+/* static/css/educacion/theme.css */
+/* Tema de color para el dashboard de educación. */
+
+body.theme-educacion {
+  /* Colores del Layout */
+  --color-sidebar-bg: #2F4F4F;
+  --color-navbar-bg: #4682B4;
+  --color-navbar-hover: #5a94c8;
+
+  /* Colores de Acento y Estado */
+  --color-accent-info: #3CB371;
+  --color-accent-danger: #CD5C5C;
+
+  /* ✅ NUEVO: Colores de Dropdown para el tema de Educación */
+  --color-dropdown-bg: #5F9EA0; /* CadetBlue */
+  --color-dropdown-bg-hover: #538c8e; /* Un tono más oscuro de CadetBlue */
+  --color-dropdown-menu-hover: #f0f8ff; /* AliceBlue */
+  --color-dropdown-menu-selected: #e0eef7; /* Un tono más oscuro de AliceBlue */
+
+  /* Colores de Componentes Específicos */
+  --color-background-legend: #f0fff0;
+  --color-background-modal: #f0fff0; /* Honeydew - un fondo verdoso muy suave */
+  /* ✅ NUEVO: Color de fondo para las etiquetas del mapa en el tema de educación */
+  --color-map-label-bg: #f0fff0; /* Honeydew */
+}

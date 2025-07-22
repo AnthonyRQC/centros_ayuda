@@ -1,0 +1,89 @@
+{% load static %} {# ¡Importante! Para usar la etiqueta static #}
+
+<!DOCTYPE html>
+<html lang="en">
+  <!-- templates/base.html -->
+  <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>{% block title %}Centro de Ayuda{% endblock %}</title>
+
+      <!-- Google Font, Font Awesome, AdminLTE -->
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"/>
+      <link rel="stylesheet" href="{% static 'adminlte/plugins/fontawesome-free/css/all.min.css' %}"/>
+      <link rel="stylesheet" href="{% static 'adminlte/dist/css/adminlte.min.css' %}" />
+      
+      <!-- ✅ INICIO DE LA CORRECCIÓN DE ESTILOS -->
+
+      <!-- 1. Carga las variables de color BASE. -->
+      <link rel="stylesheet" href="{% static 'css/base_theme.css' %}">
+
+      <!-- 2. Permite que las páginas hijas inyecten un TEMA específico (como el de educación). -->
+      {% block theme_style %}{% endblock %}
+
+      <!-- 3. Carga los estilos PRINCIPALES que usan las variables. -->
+      <link rel="stylesheet" href="{% static 'css/components.css' %}">
+      
+      <!-- ✅ FIN DE LA CORRECCIÓN DE ESTILOS -->
+      
+      <!-- Estilos de leaflet -->
+      <link rel="stylesheet" href="{% static 'css_libs/leaflet.css' %}" />    
+      <!-- Leaflet JS, Echarts JS, etc. -->
+      <script src="{% static 'js_libs/leaflet/leaflet.js' %}"></script>
+      <script src="{% static 'js_libs/echarts/echarts.min.js' %}"></script>
+    
+      {% block extra_head %}{% endblock %}
+  </head>
+
+  <body class="hold-transition sidebar-collapse layout-top-nav {% block body_class %}{% endblock %}">
+    <!-- Site wrapper -->
+    <div class="wrapper">
+      <!-- Navbar -->
+      {% include 'partials/_navbar.html' %}
+      <!-- /.Navbar -->
+
+      <!-- sidebar -->
+     {% include 'partials/_sidebar.html' %} 
+      <!-- /.sidebar -->
+
+      <!-- Content Wrapper. Contains page content -->
+      <div class="content-wrapper">
+          <div class="content-header">
+              <div class="container-fluid">
+                  <div class="row mb-2">
+                      <div class="col-sm-6">
+                          <h1 class="m-0">{% block page_title %}{% endblock %}</h1>
+                      </div>
+                      <div class="col-sm-6">
+                          {% block breadcrumbs %}{% endblock %}
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <section class="content">
+              <div class="container-fluid">
+                  {% block content %}
+                  {# Contenido específico de cada dashboard aquí #}
+                  {% endblock %}
+              </div>
+          </section>
+      </div>
+      <!-- /.content-wrapper -->
+
+      <!-- footer -->
+      {% include 'partials/_footer.html' %}
+      <!-- /.footer -->
+
+    </div>
+    <!-- ./wrapper -->
+
+    <!-- jQuery -->
+    <script src="{% static 'adminlte/plugins/jquery/jquery.min.js' %}"></script>
+    <!-- Bootstrap 4 -->
+    <script src="{% static 'adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- AdminLTE App -->
+    <script src="{% static 'adminlte/dist/js/adminlte.min.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %} {# Para JS adicionales por página #}
+  </body>
+</html>

@@ -1,0 +1,108 @@
+<div class="row">
+            <!-- Dropdown 1 (Distrito)-->
+            <div class="col-md-3">
+                <div class="form-group mb-2">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <select id="dropdown1" class="selectpicker" data-width="100%" multiple title="Distrito">
+            
+                                <!-- Bucle de Django para generar las opciones dinámicamente -->
+                                {% for distrito in lista_distritos_con_centros %}
+                                <option value="{{ distrito }}">Distrito {{ distrito }}</option>
+                                {% endfor %}
+            
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-danger clear-selection-btn" data-target="#dropdown1">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover"
+                                    data-placement="top" title="Filtro por Distrito"
+                                    data-content="Seleccione uno o más distritos para filtrar los resultados en el mapa.">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Dropdown 2 (Nivel de Centro) -->
+            <div class="col-md-3">
+                <div class="form-group mb-2">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <select id="dropdown2" class="selectpicker" data-width="100%" multiple title="Nivel de Centro">
+                                <!-- Los 'value' deben coincidir con el CSV -->
+                                <option value="1ER NIVEL">1er Nivel</option>
+                                <option value="2DO NIVEL">2do Nivel</option>
+                                <option value="3ER NIVEL">3er Nivel</option>
+                                <option value="BANCO DE SANGRE">Banco de Sangre</option>
+                                <option value="T. NUCLEAR">T. Nuclear</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-danger clear-selection-btn" data-target="#dropdown2"><i
+                                        class="fas fa-trash-alt"></i></button>
+                                <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover"
+                                    data-placement="top" title="Filtro por Nivel"
+                                    data-content="Seleccione el nivel de los centros de salud que desea visualizar."><i
+                                        class="fas fa-info-circle"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Dropdown 3 (Subsector) -->
+            <div class="col-md-3">
+                <div class="form-group mb-2">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <select id="dropdown3" class="selectpicker" data-width="100%" multiple title="Subsector">
+                                <!-- Los 'value' deben coincidir con el CSV -->
+                                <option value="PÚBLICO">Público</option>
+                                <option value="SEGURIDAD SOCIAL (CAJAS)">Seguridad Social</option>
+                                <option value="ORGANISMOS PRIVADOS">Privado</option>
+                                <option value="IGLESIA">Iglesia</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-danger clear-selection-btn" data-target="#dropdown3">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="hover"
+                                    data-placement="top" title="Filtro por Subsector"
+                                    data-content="Filtre por el tipo de administración del centro de salud.">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Botones de Análisis Cruzado -->
+            <div class="col-md-3">
+            <div class="form-group mb-2">
+                <!-- Usamos d-flex para que los botones ocupen todo el espacio -->
+                <div class="btn-group d-flex" role="group">
+                    <!-- Botón 1: Distritos vs Niveles -->
+                    <button class="btn btn-info btn-analisis-cruzado flex-fill" 
+                            data-toggle="modal" data-target="#modalAnalisisNivel"
+                            title="Ver análisis de Distritos vs. Niveles">
+                        <i class="fas fa-chart-bar"></i> D vs Niveles
+                    </button>
+                    <!-- Botón 2: Distritos vs Subsectores -->
+                    <button class="btn btn-info btn-analisis-cruzado flex-fill"
+                            data-toggle="modal" data-target="#modalAnalisisSubsector"
+                            title="Ver análisis de Distritos vs. Subsectores">
+                        <i class="fas fa-chart-bar"></i> D vs Subsectores
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        </div>
+        </div>
