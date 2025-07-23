@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: centros-ayuda
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+    startCommand: gunicorn centros_ayuda.wsgi:application
+    autoDeploy: true
