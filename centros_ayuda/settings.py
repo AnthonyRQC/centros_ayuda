@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # 👈 ¡Este es el crucial!
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -129,6 +130,7 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # MUY IMPORTANTE: En producción, debes configurar STATIC_ROOT para que Django pueda recopilar archivos estáticos.
 # Agregar la carpeta 'staticfiles' a .gitignore para evitar subir archivos estáticos al repositorio.
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
